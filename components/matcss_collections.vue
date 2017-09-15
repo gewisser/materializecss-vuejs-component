@@ -5,7 +5,7 @@ matcss_collections.vue
 <template lang="pug">
     ul.collection
         li.collection-item.avatar(v-for="item in items")
-            img.circle(src='./../images/yuna.jpg', alt='')
+            img.circle(src="item.photo", alt='')
             span.title {{ item.title }}
             p {{ item.line1 }}
             span {{ item.line2 }}
