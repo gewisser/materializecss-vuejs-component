@@ -7,13 +7,6 @@ matcss_list.vue
         ul.dropdown-content(:id="id")
             li(v-for="item in items", :class="item.text == '-'?'divider': ''", @click="OnClick(item)")
                 a(:class="item._class == undefined ? aclass: item._class") {{ item.text }}
-
-    //li
-        a(href='#!') Настройки
-    //li.divider
-    //li
-        a#exit Выход
-
 </template>
 
 <script>

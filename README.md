@@ -5,6 +5,15 @@ SPA materializecss vuejs components
 `npm install --save-dev materializecss-vuejs-component`
 
 ## Usage
+**Dependencies!**
+```js
+"devDependencies": {
+    "vue": "^2.4.4",
+    "portal-vue": "^1.1.0",
+  }
+```
+
+
 ```js
 import Vue from 'vue'
 

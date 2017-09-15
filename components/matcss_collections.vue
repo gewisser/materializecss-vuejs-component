@@ -5,7 +5,7 @@ matcss_collections.vue
 <template lang="pug">
     ul.collection
         li.collection-item.avatar(v-for="item in items")
-            img.circle(src="item.photo", alt='')
+            img.circle(:src="item.photo !== undefined? item.photo: '/avatar_2x.png'", alt='')
             span.title {{ item.title }}
             p {{ item.line1 }}
             span {{ item.line2 }}
@@ -15,6 +15,8 @@ matcss_collections.vue
 </template>
 
 <script>
+    import './../images/avatar_2x.png';
+
     export default {
         props: ['items'],
         name: 'matcss_collections',
