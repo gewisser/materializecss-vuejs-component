@@ -37,6 +37,3 @@ matcss_checkbox.vue
         }
     }
 </script>
-
-<style>
-</style>
