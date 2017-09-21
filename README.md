@@ -8,8 +8,16 @@ SPA materializecss vuejs components
 **Dependencies!**
 ```js
 "devDependencies": {
-    "vue": "^2.4.4",
-    "portal-vue": "^1.1.0",
+    ...
+    "vue": "*",
+    "vue-loader": "*",
+    "portal-vue": "*",
+    "vue-resource": "*",
+    "vue-template-compiler": "*",
+    "materialize-css": "*",
+    "jquery": "*",    
+    "webpack": "*"
+    ...
   }
 ```
 
