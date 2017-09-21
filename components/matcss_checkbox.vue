@@ -12,21 +12,22 @@ matcss_checkbox.vue
     export default {
         props: ['name', 'checked'],
         name: 'matcss_checkbox',
-
+        data () {
+            return {
+                GUIDID: undefined,
+                elInp: undefined
+            }
+        },
         mounted () {
             const _this = this;
-            $(this.$el).find('input').click(function(){ // событие onClick или onChange не работают, пришлось использовать события jquery
+            this.elInp = $(this.$el).find('input').click(function(){ // событие onClick или onChange не работают, пришлось использовать события jquery
                 _this.$emit('update:checked', $(this).prop('checked'));
             });
         },
         watch: {
             checked(newVal){
-                this.$emit('update:checked', newVal);
-            }
-        },
-        data () {
-            return {
-                GUIDID: undefined,
+                if (this.elInp.prop('checked') != newVal)
+                    this.$emit('update:checked', newVal);
             }
         },
         created(){
