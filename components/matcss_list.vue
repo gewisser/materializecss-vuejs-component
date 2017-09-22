@@ -3,7 +3,7 @@ Created by Roman on 16.08.2017.
 matcss_list.vue
 
 <template lang="pug">
-    portal(to="materialize-conteiner")
+    div(v-callout="true")
         ul.dropdown-content(:id="id")
             li(v-for="item in items", :class="item.text == '-'?'divider': ''", @click="OnClick(item)")
                 a(:class="item._class == undefined ? aclass: item._class") {{ item.text }}
@@ -43,6 +43,3 @@ matcss_list.vue
         }
     }
 </script>
-
-<style>
-</style>

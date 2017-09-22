@@ -3,9 +3,11 @@ Created by Roman on 23.08.2017.
 matcss_dropdownButton.vue
 
 <template lang="pug">
-    a.dropdown-button.btn.light-blue.darken-2(:data-activates='GUIDID')
-        i.material-icons.left(v-if="isIconLeft") {{ iconLeft }}
-        | {{ selectedText }}
+    a.dropdown-button.btn(:data-activates='GUIDID')
+        slot
+            i.material-icons.left(v-if="isIconLeft") {{ iconLeft }}
+            | {{ selectedText }}
+
         m-list-internal(:items="items", :id="GUIDID", @onSelect="onSelect", :selected-id="selectedId", :aclass="aclass == undefined? '': aclass")
 
 </template>
@@ -68,6 +70,3 @@ matcss_dropdownButton.vue
         }
     }
 </script>
-
-<style>
-</style>

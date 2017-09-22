@@ -39,3 +39,29 @@ export function hasParent(stop, parent, target) {
 
     return ret;
 }
+
+/**
+ * Plugin for moving some components of material design into an external block
+ * @type {{install: callout.install}}
+ */
+
+export const callout = {
+    install: function (Vue, options) {
+        Vue.directive('callout', {
+            inserted (el, binding, vnode, oldVnode) {
+                const bc = 'materializecss-callout';
+
+                var mc = document.getElementById(bc);
+
+                if (mc == undefined) {
+                    mc = document.createElement('div');
+                    mc.id = bc;
+
+                    document.body.appendChild(mc);
+                }
+
+                mc.insertBefore(el.firstChild, mc.firstChild);
+            }
+        })
+    }
+};

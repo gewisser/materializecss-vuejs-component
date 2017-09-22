@@ -117,6 +117,3 @@ matcss_autocomplete.vue
 
     }
 </script>
-
-<style>
-</style>

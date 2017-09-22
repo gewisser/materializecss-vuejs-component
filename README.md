@@ -11,7 +11,6 @@ SPA materializecss vuejs components
     ...
     "vue": "*",
     "vue-loader": "*",
-    "portal-vue": "*",
     "vue-resource": "*",
     "vue-template-compiler": "*",
     "materialize-css": "*",
@@ -23,7 +22,10 @@ SPA materializecss vuejs components
 
 
 ```js
-import Vue from 'vue'
+import Vue from 'vue';
+
+import {callout} from 'materializecss-vuejs-component';
+Vue.use(callout);
 
 import MInput from 'materializecss-vuejs-component/matcss_input';
 import MList from 'materializecss-vuejs-component/matcss_list';
