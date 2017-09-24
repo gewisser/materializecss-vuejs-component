@@ -1,4 +1,11 @@
-
+/**
+ * Returns a string from the 'idsName' keys separated by a comma with the value of the key 'conditionKey' equals 'conditionVal'
+ * @param array
+ * @param idsName
+ * @param conditionKey
+ * @param conditionVal
+ * @returns {string}
+ */
 export function implodeObj(array, idsName, conditionKey, conditionVal) {
     var ret = '';
 
@@ -6,11 +13,48 @@ export function implodeObj(array, idsName, conditionKey, conditionVal) {
         return ret;
 
     array.forEach(function(item, i, arr) {
-        if (item[conditionKey] == conditionVal) {
+        if (item[conditionKey] !== undefined && item[conditionKey] == conditionVal) {
             if (ret !== '')
                 ret += ',';
 
             ret+=item[idsName]
+        }
+    });
+
+    return ret;
+}
+
+/**
+ * Returns an array of objects if the object key in the source array 'conditionKey' is equal to 'conditionVal'.
+ * The 'conditionKey' key is removed.
+ * The original object does not change.
+ *
+ * @param array
+ * @param conditionKey
+ * @param conditionVal
+ * @param otionalDeleteKey {Array}
+ * @returns {Array}
+ */
+
+export function getArrayIf(array, conditionKey, conditionVal, otionalDeleteKey) {
+    var ret = [];
+
+    if (!Array.isArray(array))
+        return ret;
+
+    array.forEach(function(item, i, arr) {
+        if (item[conditionKey] !== undefined && item[conditionKey] == conditionVal) {
+            let ck = {};
+            Object.assign(ck, item);
+            delete ck[conditionKey];
+
+            if (otionalDeleteKey != undefined && Array.isArray(otionalDeleteKey)) {
+                otionalDeleteKey.forEach(function(item) {
+                    delete ck[item];
+                })
+            }
+
+            ret.push(ck)
         }
     });
 
@@ -41,7 +85,12 @@ export function hasParent(stop, parent, target) {
 }
 
 /**
- * Plugin for moving some components of material design into an external block
+ * Plugin Vuejs for moving some components of material design into an external block. For example, Dropdown - drop-down list block
+ * This plug-in must necessarily be connected to the project!!
+ *
+ * import {callout} from 'materializecss-vuejs-component';
+ * Vue.use(callout);
+ *
  * @type {{install: callout.install}}
  */
 

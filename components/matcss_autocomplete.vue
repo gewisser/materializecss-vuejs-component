@@ -20,9 +20,8 @@ matcss_autocomplete.vue
             return {
                 GUIDID: undefined,
                 rawData: [],
-                inputElement: undefined
-                //initVal: this.val.text === undefined? '': this.val.text
-
+                inputElement: undefined,
+                curInputVal: ''
             }
         },
         created(){
@@ -36,8 +35,13 @@ matcss_autocomplete.vue
         watch: {
             val: {
                 handler(val, oldVal){
-                    if (val.itemName !== undefined)
-                        this.inputElement.val(val.itemName)
+                    if (val == undefined) {
+                        this.inputElement.val('');
+                    } else
+                    if (val.itemName !== undefined && val.itemName != this.curInputVal) {
+                        this.inputElement.val(val.itemName);
+                        this.curInputVal = val.itemName;
+                    }
                 },
                 deep: true
             }
@@ -58,6 +62,7 @@ matcss_autocomplete.vue
                 data: adata,
                 limit: 20, // The max amount of results that can be shown at once. Default: Infinity.
                 onAutocomplete: function(val) {
+                    _this.curInputVal = val;
 
                     for (let i = _this.rawData.length - 1; i >= 0; i--) {
                         if (_this.rawData[i].id !== $(this).find('img').attr('data-id'))
@@ -96,9 +101,9 @@ matcss_autocomplete.vue
                         if (response.body === null || !response.body.ret)
                             return;
 
-                        _this.rawData = response.body.data;
+                        _this.rawData = response.body.list;
 
-                        response.body.data.forEach(function callback(currentValue, index, array) {
+                        response.body.list.forEach(function callback(currentValue, index, array) {
                             let item = {};
                             item[currentValue.itemName] = 'pixel.png" data-id="'+currentValue.id;
 

@@ -15,8 +15,21 @@ matcss_list.vue
         props: ['items', 'id', 'selectedId', 'aclass'],
         data(){
             return {
-                last_item_click: -100
+                last_item_click: 0
             }
+        },
+        created(){
+            var obj = undefined;
+
+            this.items.forEach(function(currentValue, index, array) {
+                if (this.selectedId == currentValue.id) {
+                    obj = currentValue;
+                    return false;
+                }
+            }, this);
+
+            if (obj != undefined)
+                this.OnClick(obj);
         },
         watch:{
             selectedId(val){
