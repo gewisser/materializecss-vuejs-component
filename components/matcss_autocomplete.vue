@@ -4,7 +4,7 @@ matcss_autocomplete.vue
 
 <template lang="pug">
     .input-field
-        //i.material-icons.prefix textsms
+        i.material-icons.prefix(v-if="iconPrefix !== undefined") {{ iconPrefix }}
         input.autocomplete(:id="GUIDID", type='text', :class="{ valid: textExist }")
         label(:for="GUIDID", :class="{ active: textExist}") {{ name }}
 
@@ -14,7 +14,7 @@ matcss_autocomplete.vue
     import pix from './../images/pixel.png';
 
     export default {
-        props: ['name', 'val', 'url'],
+        props: ['name', 'val', 'url', 'iconPrefix'],
         name: 'matcss_autocomplete',
         data () {
             return {
@@ -37,6 +37,7 @@ matcss_autocomplete.vue
                 handler(val, oldVal){
                     if (val == undefined) {
                         this.inputElement.val('');
+                        this.curInputVal = '';
                     } else
                     if (val.itemName !== undefined && val.itemName != this.curInputVal) {
                         this.inputElement.val(val.itemName);
@@ -87,6 +88,8 @@ matcss_autocomplete.vue
 
                 timeout_id = window.setTimeout(function () {
                     const value = jQ_this.val();
+
+                    _this.curInputVal = value;
 
                     if (value === '')
                         return;
