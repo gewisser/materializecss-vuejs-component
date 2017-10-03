@@ -26,9 +26,9 @@ matcss_switch.vue
                 this.checkedIsBool = typeof this.checked === 'boolean'
 
                 if (this.checkedIsBool)
-                    return this.checked? 'checked': '';
+                    return this.checked;
 
-                return this.checked == 1? 'checked': ''
+                return this.checked == 1? true: false
             }
         },
         watch: {
