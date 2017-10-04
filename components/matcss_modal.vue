@@ -6,7 +6,7 @@ matcss_modal.vue
     .modal
         .modal-content
             h4 {{ caption }}
-            .div(style="margin-top: 53px")
+            .div(style="margin-top: 22px")
                 slot
         .modal-footer(@click="OnClick")
             slot(name='footer')
