@@ -4,7 +4,7 @@ matcss_collections.vue
 
 <template lang="pug">
     ul.collection
-        li.collection-item.avatar(v-for="item in items")
+        li.collection-item.avatar(v-for="item in items", @dblclick="itemdblClick(item)")
             img.circle(:src="item.photo !== undefined? item.photo: '/avatar_2x.png'", alt='')
             span.title {{ item.title }}
             p {{ item.line1 }}
@@ -23,6 +23,9 @@ matcss_collections.vue
         methods:{
             OnClick(item, event) {
                 this.$emit('onClick', item, event)
+            },
+            itemdblClick(item){
+                this.$emit('onItemDblClick', item)
             }
         }
     }
