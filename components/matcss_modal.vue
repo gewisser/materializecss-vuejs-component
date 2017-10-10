@@ -10,7 +10,7 @@ matcss_modal.vue
                 slot
         .modal-footer(@click="OnClick")
             slot(name='footer')
-                a#btncancel.modal-action.modal-close.waves-effect.waves-green.btn-flat {{ buttonCancel == undefined? 'Отмена': buttonCancel }}
+                a#btncancel.modal-action.modal-close.waves-effect.waves-green.btn-flat(v-if="buttonCancel == undefined || buttonCancel != ''") {{ buttonCancel == undefined? 'Отмена': buttonCancel }}
                 a#btnok.modal-action.modal-close.waves-effect.waves-green.btn-flat {{ buttonOk == undefined? 'ОК': buttonOk }}
 
 
