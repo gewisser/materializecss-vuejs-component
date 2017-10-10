@@ -4,7 +4,7 @@ matcss_collections.vue
 
 <template lang="pug">
     ul.collection
-        li.collection-item.avatar(v-for="item in items", @dblclick="itemdblClick(item)")
+        li.collection-item.avatar(v-for="item in items", @dblclick="itemdblClick(item)", :class="item.class == undefined? '' : item.class")
             img.circle(:src="item.photo !== undefined? item.photo: '/avatar_2x.png'", alt='')
             span.title {{ item.title }}
             p {{ item.line1 }}
