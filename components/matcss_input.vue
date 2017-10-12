@@ -103,6 +103,7 @@ matcss_input.vue
 
                 if (e.which == 13 && val && val != '') {
                     _this.UpdateVal(val);
+                    _this.$emit('onEnter', val);
 
                     return true;
                 }
