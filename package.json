@@ -1,0 +1,24 @@
+{
+  "name": "materializecss-vuejs-component",
+  "version": "1.1.7",
+  "description": "SPA materializecss vuejs components",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gewisser/materializecss-vuejs-component.git"
+  },
+  "keywords": [
+    "vuejs",
+    "materializecss",
+    "spa"
+  ],
+  "author": "roman@gavrilow.ru",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gewisser/materializecss-vuejs-component/issues"
+  },
+  "homepage": "https://github.com/gewisser/materializecss-vuejs-component#readme"
+}
