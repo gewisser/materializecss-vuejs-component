@@ -10,7 +10,7 @@ matcss_select.vue
             :value="item.id",
             :data-icon="item.icon !== undefined? item.icon: ''",
             :class="iconsClass !== undefined? iconsClass:''",
-            :disabled="item.disabled == undefined? false: item.disabled",
+            :disabled="id_disabled(item)",
             :selected="item.id == selectedId"
             ) {{ item.text }}
         label {{ name }}
@@ -26,8 +26,12 @@ matcss_select.vue
                 isInit: false,
                 changeItems: false,
                 selectDOM: undefined,
-                items_c: []
+                items_c: [],
+                curSelectIndex: 0
             }
+        },
+        computed: {
+
         },
         created(){
             this.initItems();
@@ -43,12 +47,14 @@ matcss_select.vue
             },
             selectedId(val){
                 this.items_c.forEach(function (currentValue, index, array) {
-                    if (currentValue.id == val) {
+                    if (currentValue.id == val && this.curSelectIndex != index) {
                         this.selectDOM.prev().children().not(".disabled")
                             .removeClass()
                             .find(':eq('+index+')').addClass('active selected');
 
                         this.selectDOM.prev().prev().val(currentValue.text);
+
+                        this.curSelectIndex = index;
 
                         this.$emit('onSelect', currentValue, true);
                     }
@@ -61,6 +67,13 @@ matcss_select.vue
             })
         },
         methods:{
+            id_disabled(item){
+                if (item.disabled == undefined)
+                    return false;
+
+                return typeof item.disabled === 'boolean'? item.disabled: item.disabled == 1? true: false
+            },
+
             initItems(){
                 const pre_item = [
                     {id: -1, text: 'Выберите значение из списка', disabled: true}
@@ -77,9 +90,21 @@ matcss_select.vue
                     const _this = this;
 
                     this.selectDOM.prev().children().click(function () {
-                        const inx = $(this).index();
-                        _this.$emit('update:selectedId', _this.items_c[inx].id);
-                        _this.$emit('onSelect', _this.items_c[inx], false);
+                        if ($(this).hasClass('disabled'))
+                            return;
+
+                        let idx = $(this).index();
+
+                        if (_this.curSelectIndex == idx)
+                            return;
+
+                        _this.curSelectIndex = idx;
+
+                        if (_this.curSelectIndex == 0)
+                            return;
+
+                        _this.$emit('update:selectedId', _this.items_c[_this.curSelectIndex].id);
+                        _this.$emit('onSelect', _this.items_c[_this.curSelectIndex], false);
                     });
 
                     this.isInit = true
