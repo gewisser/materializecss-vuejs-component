@@ -13,7 +13,7 @@ matcss_input.vue
             :class="c_inputClass",
             :disabled="c_disabled"
         )
-        label(:for='GUIDID', :class="{ active: textExist}", :data-error="dataError", :data-success="dataSuccess") {{ name }}
+        label(style="width: 100%;", :for='GUIDID', :class="{ active: textExist}", :data-error="dataError", :data-success="dataSuccess") {{ name }}
 </template>
 
 <script>
@@ -58,6 +58,28 @@ matcss_input.vue
         },
         watch:{
             isValid(val){
+                this.informValidation(val);
+            }
+        },
+        methods: {
+            onChange() {
+                this.UpdateVal($(this.$el).children('input').val());
+            },
+
+            UpdateVal(val){
+                if (this.validation != undefined) {
+                    let run = new Function('val', 'return '+this.validation);
+                    let result = run(val)? 1:0;
+
+
+                    this.informValidation(result)
+                    this.$emit('update:isValid', result);
+                }
+
+                this.$emit('update:val', val);
+            },
+
+            informValidation(val){
                 switch (val) {
                     case -1:
                         this.inputClass.valid = false;
@@ -75,24 +97,6 @@ matcss_input.vue
 
                         break;
                 }
-            }
-        },
-        methods: {
-            onChange() {
-                this.UpdateVal($(this.$el).children('input').val());
-            },
-
-            UpdateVal(val){
-                if (this.validation != undefined) {
-                    let run = new Function('val', 'return '+this.validation);
-                    let result = run(val);
-
-                    //this.isValid(result);
-
-                    this.$emit('update:isValid', result? 1:0);
-                }
-
-                this.$emit('update:val', val);
             }
         },
         mounted(){
