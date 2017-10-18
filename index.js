@@ -84,6 +84,51 @@ export function hasParent(stop, parent, target) {
     return ret;
 }
 
+var typeOf = require('kind-of');
+var rename = require('rename-keys');
+
+/**
+ * Iterates over an array of objects or an object and allows you to rename the name of the object key.
+ * For nested arrays with objects, use 'deep-rename-keys' ( npm install --save deep-rename-keys )
+ * @param obj - array or object necessary for the transformation
+ * @param cbk - callback function where you can change the name of the object key or array
+ * @param cbitem - callback function where you can change an array element
+ * @returns {Array, Object}
+ */
+
+export function renameKeys(obj, cbk, cbitem) {
+    var type = typeOf(obj);
+
+    if (type !== 'object' && type !== 'array') {
+        throw new Error('expected an object');
+    }
+
+    if (type === 'object') {
+        return rename(obj, cbk);
+    }
+
+    var res = [];
+
+    for (var key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            var val = obj[key];
+
+            if (typeOf(cbitem) === 'function')
+                cbitem(val);
+
+            if (typeOf(val) === 'object') {
+                res[key] = rename(val, cbk);
+            } else {
+                res[key] = val;
+            }
+        }
+    }
+    return res;
+}
+
+
+
+
 /**
  * Plugin Vuejs for moving some components of material design into an external block. For example, Dropdown - drop-down list block
  * This plug-in must necessarily be connected to the project!!
