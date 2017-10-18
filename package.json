@@ -15,6 +15,10 @@
     "materializecss",
     "spa"
   ],
+  "dependencies": {
+    "kind-of": "^3.0.2",
+    "rename-keys": "^1.1.2"
+  },  
   "author": "roman@gavrilow.ru",
   "license": "MIT",
   "bugs": {
