@@ -2,25 +2,9 @@
 SPA materializecss vuejs components
 ## Installation
 
-`npm install --save-dev materializecss-vuejs-component`
+`npm install --save materializecss-vuejs-component`
 
 ## Usage
-**Dependencies!**
-```js
-"devDependencies": {
-    ...
-    "vue": "*",
-    "vue-loader": "*",
-    "vue-resource": "*",
-    "vue-template-compiler": "*",
-    "materialize-css": "*",
-    "jquery": "*",    
-    "webpack": "*"
-    ...
-  }
-```
-
-
 ```js
 import Vue from 'vue';
 
@@ -69,6 +53,4 @@ m-select(name="Select", :items="positionsList", :selected-id.sync="formData.posi
 m-input(name="E-Mail", :val.sync="formData.mail")
 m-input(name="Phone", :val.sync="formData.phone")
 m-checkbox(v-if="isNew", name="Delete item", :checked.sync="formData.isDelete")
-
-
 ```
