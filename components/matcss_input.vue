@@ -6,19 +6,46 @@ matcss_input.vue
     .input-field
         i.material-icons.prefix(v-if="iconPrefix !== undefined") {{ iconPrefix }}
         input(
+            v-if="!ShowTextarea",
             :id="GUIDID",
             :value="val",
             @change="onChange",
             :type="type==undefined?'text': type",
             :class="c_inputClass",
-            :disabled="c_disabled"
+            :disabled="c_disabled",
+            :placeholder="placeholder"
         )
+
+        textarea.materialize-textarea(
+            v-if="ShowTextarea",
+            :id="GUIDID",
+            @change="onChange",
+            :class="c_inputClass",
+            :disabled="c_disabled",
+            :value="val",
+            :placeholder="placeholder"
+        )
+
         label(style="width: 100%;", :for='GUIDID', :class="{ active: textExist}", :data-error="dataError", :data-success="dataSuccess") {{ name }}
 </template>
 
 <script>
     export default {
-        props: ['name', 'val', 'type', 'disabled', 'validation', 'isValid', 'dataError', 'dataSuccess', 'iconPrefix', 'addClass'],
+        props: [
+            'name',
+            'val',
+            'type',
+            'disabled',
+            'validation',
+            'isValid',
+            'dataError',
+            'dataSuccess',
+            'iconPrefix',
+            'addClass',
+            'isTextarea',
+            'placeholder',
+            'numeric'
+        ],
         name: 'matcss_input',
         data () {
             return {
@@ -32,7 +59,7 @@ matcss_input.vue
         },
         computed: {
             textExist(){
-                return this.val !== undefined && this.val !== '';
+                return (this.val !== undefined && this.val !== '') || (this.placeholder !== undefined && this.placeholder !== '');
             },
             c_inputClass(){
                 let addClass;
@@ -51,6 +78,12 @@ matcss_input.vue
                     return this.disabled
                 else
                     return this.disabled == 1? true: false;
+            },
+            ShowTextarea(){
+                return this.isTextarea == undefined? false: typeof this.isTextarea === 'boolean'? this.isTextarea: this.isTextarea == 'true'? true: false
+            },
+            is_numeric(){
+                return this.numeric == undefined? false: typeof this.numeric === 'boolean'? this.numeric: this.numeric == 'true'? true: false
             }
         },
         created(){
@@ -63,7 +96,9 @@ matcss_input.vue
         },
         methods: {
             onChange() {
-                this.UpdateVal($(this.$el).children('input').val());
+                let el ='input';
+                el = this.ShowTextarea? 'textarea': el;
+                this.UpdateVal($(this.$el).children(el).val());
             },
 
             UpdateVal(val){
@@ -102,18 +137,33 @@ matcss_input.vue
         mounted(){
             const _this = this;
 
-            let input = $(this.$el).children('input').keypress(function (e) {
+            let el ='input';
+            el = this.ShowTextarea? 'textarea': el;
+
+            let input = $(this.$el).children(el).keypress(function (e) {
+                let ret = true;
+
+                if (_this.is_numeric)
+                    if ((e.which == 32) || (e.which == 37) || (e.which == 38) || (e.which == 39) || (e.which == 40) || (e.which == 46) ||
+                        (e.which ==  9) || (e.which ==  8) || (e.which == 35) || (e.which ==  36) || (e.which == 13)) ret = true;
+                    else
+                        if (((e.which > 47) && (e.which < 58))) {
+                            ret = true
+                        }	else {
+                            ret = false;
+                        }
+
+
                 var val = $(this).val();
 
                 if (e.which == 13 && val && val != '') {
                     _this.UpdateVal(val);
                     _this.$emit('onEnter', val);
-
-                    return true;
                 }
 
-                return true;
+                return ret;
             });
+
         }
     }
 </script>
