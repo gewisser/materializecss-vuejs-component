@@ -44,7 +44,7 @@ export function getArrayIf(array, conditionKey, conditionVal, otionalDeleteKey) 
 
     array.forEach(function(item, i, arr) {
         if (item[conditionKey] !== undefined && item[conditionKey] == conditionVal) {
-            let ck = {};
+            var ck = {};
             Object.assign(ck, item);
             delete ck[conditionKey];
 
@@ -139,11 +139,11 @@ export function renameKeys(obj, cbk, cbitem) {
  * @type {{install: callout.install}}
  */
 
-export const callout = {
+export var callout = {
     install: function (Vue, options) {
         Vue.directive('callout', {
-            inserted (el, binding, vnode, oldVnode) {
-                const bc = 'materializecss-callout';
+            inserted: function (el, binding, vnode, oldVnode) {
+                var bc = 'materializecss-callout';
 
                 var mc = document.getElementById(bc);
 
