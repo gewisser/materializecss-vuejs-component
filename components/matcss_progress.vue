@@ -47,13 +47,6 @@ matcss_progress.vue
 
                 return isLabel
             }
-        },
-        created(){
-            const _this = this;
-            bus.$on('matcss_progress', function (v) {
-                let run = new Function('ts', v);
-                run(_this);
-            })
         }
     }
 </script>
