@@ -5,17 +5,18 @@ matcss_list.vue
 <template lang="pug">
     div(v-callout="true")
         ul.dropdown-content(:id="id")
-            li(v-for="item in items", :class="item.text == '-'?'divider': ''", @click="OnClick(item)")
-                a(:class="item._class == undefined ? aclass: item._class") {{ item.text }}
+            li(v-for="item in items", :class="item[ratio.text] == '-'?'divider': ''", @click="OnClick(item)")
+                a(:class="item[ratio._class] == undefined ? aclass: item[ratio._class]") {{ item[ratio.text] }}
 </template>
 
 <script>
     export default {
         name: 'matcss_list',
-        props: ['items', 'id', 'selectedId', 'aclass'],
+        props: ['items', 'id', 'selectedId', 'aclass', 'ratioProp'],
         data(){
             return {
-                last_item_click: 0
+                last_item_click: 0,
+                ratio: this.c_ratioProp()
             }
         },
         created(){
@@ -47,6 +48,17 @@ matcss_list.vue
             }
         },
         methods: {
+            c_ratioProp(){
+                let ratioObj = {};
+
+                if (this.ratioProp !== undefined)
+                    if (typeof this.ratioProp === 'object')
+                        ratioObj = this.ratioProp;
+                    else
+                        ratioObj = new Function('', 'return '+this.ratioProp)();
+
+                return $.extend({ text: 'text', _class: '_class' }, ratioObj);
+            },
             OnClick(item) {
                 if (this.last_item_click !== item.id) {
                     this.last_item_click = item.id;

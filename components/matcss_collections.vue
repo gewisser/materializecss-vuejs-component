@@ -10,7 +10,7 @@ matcss_collections.vue
             p.line1 {{ item[ratio.line1] }}
             span.line2 {{ item[ratio.line2] }}
             .secondary-content(:id="item.id", @click="OnClick(item, $event)", :style="c_scStyle")
-                slot(name="item", :item="item")
+                slot(name="secondary", :item="item")
 
 </template>
 
@@ -39,10 +39,15 @@ matcss_collections.vue
         },
         methods:{
             c_ratioProp(){
-                if (typeof this.ratioProp === 'object')
-                    return this.ratioProp;
-                else
-                    return new Function('', 'return '+this.ratioProp)();
+                let ratioObj = {};
+
+                if (this.ratioProp !== undefined)
+                    if (typeof this.ratioProp === 'object')
+                        ratioObj = this.ratioProp;
+                    else
+                        ratioObj = new Function('', 'return '+this.ratioProp)();
+
+                return $.extend({ title: 'title', line1: 'line1', line2: 'line2' }, ratioObj);
             },
             OnClick(item, event) {
                 this.$emit('onClick', item, event)

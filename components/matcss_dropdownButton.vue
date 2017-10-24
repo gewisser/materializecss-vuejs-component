@@ -8,7 +8,14 @@ matcss_dropdownButton.vue
             i.material-icons.left(v-if="isIconLeft") {{ iconLeft }}
             | {{ selectedText }}
 
-        m-list-internal(:items="items", :id="GUIDID", @onSelect="onSelect", :selected-id="selectedId", :aclass="aclass == undefined? '': aclass")
+        m-list-internal(
+        :items="items",
+        :id="GUIDID",
+        @onSelect="onSelect",
+        :selected-id="selectedId",
+        :aclass="aclass == undefined? '': aclass",
+        :ratio-prop="ratioProp"
+        )
 
 </template>
 
@@ -16,7 +23,7 @@ matcss_dropdownButton.vue
     import MList from './matcss_list.vue';
 
     export default {
-        props: ['items', 'name', 'selectedId', 'aclass', 'iconLeft'],
+        props: ['items', 'name', 'selectedId', 'aclass', 'iconLeft', 'ratioProp'],
         name: 'matcss_dropdownButton',
         data () {
             return {

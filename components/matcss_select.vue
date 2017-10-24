@@ -8,11 +8,11 @@ matcss_select.vue
             option(
             v-for="item in items_c",
             :value="item.id",
-            :data-icon="item.icon !== undefined? item.icon: ''",
+            :data-icon="item[ratio.icon] !== undefined? item[ratio.icon]: ''",
             :class="iconsClass !== undefined? iconsClass:''",
             :disabled="id_disabled(item)",
             :selected="item.id == selectedId"
-            ) {{ item.text }}
+            ) {{ item[ratio.text] }}
         label {{ name }}
 
 </template>
@@ -20,14 +20,15 @@ matcss_select.vue
 <script>
     export default {
         name: 'matcss_select',
-        props: ['items', 'name', 'selectedId', 'iconsClass'],
+        props: ['items', 'name', 'selectedId', 'iconsClass', 'ratioProp'],
         data () {
             return {
                 isInit: false,
                 changeItems: false,
                 selectDOM: undefined,
                 items_c: [],
-                curSelectIndex: 0
+                curSelectIndex: 0,
+                ratio: this.c_ratioProp()
             }
         },
         computed: {
@@ -67,6 +68,17 @@ matcss_select.vue
             })
         },
         methods:{
+            c_ratioProp(){
+                let ratioObj = {};
+
+                if (this.ratioProp !== undefined)
+                    if (typeof this.ratioProp === 'object')
+                        ratioObj = this.ratioProp;
+                    else
+                        ratioObj = new Function('', 'return '+this.ratioProp)();
+
+                return $.extend({ text: 'text', icon: 'icon' }, ratioObj);
+            },
             id_disabled(item){
                 if (item.disabled == undefined)
                     return false;

@@ -11,7 +11,7 @@ matcss_collapsible.vue
                         td
                             a(target='_blank')
                                 img#icon-id.circle(alt='', :src="item.photo")
-                        td#title-id(v-html="item.title")
+                        td#title-id(v-html="item[ratio.title]")
             .collapsible-body(@click="OnClick(item, $event)")
                 slot(name="body", :item="item")
 
@@ -19,8 +19,13 @@ matcss_collapsible.vue
 
 <script>
     export default {
-        props: ['items'],
+        props: ['items', 'ratioProp'],
         name: 'matcss_collapsible',
+        data(){
+            return {
+                ratio: this.c_ratioProp()
+            }
+        },
         watch:{
             items(val){
                 const collapsbl = $(this.$el);
@@ -31,6 +36,18 @@ matcss_collapsible.vue
             }
         },
         methods:{
+            c_ratioProp(){
+                let ratioObj = {};
+
+                if (this.ratioProp !== undefined)
+                    if (typeof this.ratioProp === 'object')
+                        ratioObj = this.ratioProp;
+                    else
+                        ratioObj = new Function('', 'return '+this.ratioProp)();
+
+                return $.extend({ title: 'title'}, ratioObj);
+            },
+
             OnClick(item, event) {
                 this.$emit('onClick', item, event)
             },
