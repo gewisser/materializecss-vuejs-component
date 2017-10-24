@@ -4,11 +4,11 @@ matcss_collections.vue
 
 <template lang="pug">
     ul.collection
-        li.collection-item.avatar(v-for="item in items", @dblclick="itemdblClick(item)", :class="item.class == undefined? '' : item.class")
-            img.circle(:src="item.photo !== undefined? item.photo: '/avatar_2x.png'", alt='')
-            span.title {{ item.title }}
-            p.line1 {{ item.line1 }}
-            span.line2 {{ item.line2 }}
+        li.collection-item.avatar(v-for="item in items", @dblclick="itemdblClick(item)", :class="item[ratio.class] == undefined? '' : item[ratio.class]")
+            img.circle(:src="item[ratio.photo] !== undefined? item[ratio.photo]: '/avatar_2x.png'", alt='')
+            span.title {{ item[ratio.title] }}
+            p.line1 {{ item[ratio.line1] }}
+            span.line2 {{ item[ratio.line2] }}
             .secondary-content(:id="item.id", @click="OnClick(item, $event)", :style="c_scStyle")
                 slot(name="item", :item="item")
 
@@ -18,8 +18,13 @@ matcss_collections.vue
     import './../images/avatar_2x.png';
 
     export default {
-        props: ['items', 'scStyle'],
+        props: ['items', 'scStyle', 'ratioProp'],
         name: 'matcss_collections',
+        data(){
+            return {
+                ratio: this.c_ratioProp()
+            }
+        },
         computed:{
             c_scStyle(){
                 let style;
@@ -33,6 +38,12 @@ matcss_collections.vue
             }
         },
         methods:{
+            c_ratioProp(){
+                if (typeof this.ratioProp === 'object')
+                    return this.ratioProp;
+                else
+                    return new Function('', 'return '+this.ratioProp)();
+            },
             OnClick(item, event) {
                 this.$emit('onClick', item, event)
             },
