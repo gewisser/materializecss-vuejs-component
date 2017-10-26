@@ -30,8 +30,6 @@
     "vue-template-compiler": "^2.5.2",
     "materialize-css": "^0.100.2",
     "jquery": "^3.2.1",
-    "kind-of": "^3.0.2",
-    "rename-keys": "^1.1.2",
     "webpack": "^3.8.1"
   },
   "author": "roman@gavrilow.ru",
