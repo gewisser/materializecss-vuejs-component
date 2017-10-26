@@ -14,7 +14,7 @@ matcss_dropdownButton.vue
         @onSelect="onSelect",
         :selected-id="selectedId",
         :aclass="aclass == undefined? '': aclass",
-        :ratio-prop="ratioProp"
+        :ratio-prop="ratio"
         )
 
 </template>
@@ -28,7 +28,8 @@ matcss_dropdownButton.vue
         data () {
             return {
                 GUIDID: undefined,
-                buttonName: ''
+                buttonName: '',
+                ratio: this.c_ratioProp()
             }
         },
         created(){
@@ -45,14 +46,14 @@ matcss_dropdownButton.vue
                     return this.name;
 
                 if (this.buttonName != '')
-                    return this.buttonName
+                    return this.buttonName;
 
 
                 //const _this = this;
 
-                this.items.forEach(function callback(currentValue, index, array) {
+                this.items.forEach((currentValue)=> {
                     if (currentValue.id == this.selectedId) {
-                        text = currentValue.text
+                        text =  currentValue[this.ratio.text];
                         return;
                     }
                 }, this);
@@ -64,9 +65,21 @@ matcss_dropdownButton.vue
             'm-list-internal': MList
         },
         methods:{
+            c_ratioProp(){
+                let ratioObj = {};
+
+                if (this.ratioProp !== undefined)
+                    if (typeof this.ratioProp === 'object')
+                        ratioObj = this.ratioProp;
+                    else
+                        ratioObj = new Function('', 'return '+this.ratioProp)();
+
+                return $.extend({ text: 'text', _class: '_class' }, ratioObj);
+            },
+
             onSelect(item){
-                this.buttonName = item.text;
-                this.$emit('update:selectedId', item.id)
+                this.buttonName = item[this.ratio.text];
+                this.$emit('update:selectedId', item.id);
                 this.$emit('onSelect', item);
             }
         },
