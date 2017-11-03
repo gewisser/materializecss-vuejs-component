@@ -23,7 +23,7 @@ matcss_switch.vue
         },
         computed:{
             checkedDOM(){
-                this.checkedIsBool = typeof this.checked === 'boolean'
+                this.checkedIsBool = typeof this.checked === 'boolean';
 
                 if (this.checkedIsBool)
                     return this.checked;
