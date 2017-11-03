@@ -12,7 +12,7 @@ matcss_select.vue
             :class="iconsClass !== undefined? iconsClass:''",
             :disabled="id_disabled(item)",
             :selected="item.id == selectedId"
-            ) {{ item[ratio.text] }}
+            ) {{ item[ratio.text] == undefined? item.text: item[ratio.text] }}
         label {{ name }}
 
 </template>
@@ -30,9 +30,6 @@ matcss_select.vue
                 curSelectIndex: 0,
                 ratio: this.c_ratioProp()
             }
-        },
-        computed: {
-
         },
         created(){
             this.initItems();
