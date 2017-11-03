@@ -75,7 +75,7 @@ matcss_input.vue
                 if (this.disabled == undefined) return false;
 
                 if (typeof this.disabled === 'boolean')
-                    return this.disabled
+                    return this.disabled;
                 else
                     return this.disabled == 1? true: false;
             },
