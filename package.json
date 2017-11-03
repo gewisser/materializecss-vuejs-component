@@ -1,6 +1,6 @@
 {
   "name": "materializecss-vuejs-component",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "description": "SPA materializecss vuejs components",
   "main": "index.js",
   "scripts": {
