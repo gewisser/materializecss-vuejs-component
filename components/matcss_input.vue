@@ -13,6 +13,7 @@ matcss_input.vue
             :type="type==undefined?'text': type",
             :class="c_inputClass",
             :disabled="c_disabled",
+            :readonly="c_readonly",
             :placeholder="placeholder"
         )
 
@@ -22,6 +23,7 @@ matcss_input.vue
             @change="onChange",
             :class="c_inputClass",
             :disabled="c_disabled",
+            :readonly="c_readonly",
             :value="val",
             :placeholder="placeholder"
         )
@@ -36,6 +38,7 @@ matcss_input.vue
             'val',
             'type',
             'disabled',
+            'readonly',
             'validation',
             'isValid',
             'dataError',
@@ -72,12 +75,18 @@ matcss_input.vue
                 return Object.assign({}, this.inputClass, addClass);
             },
             c_disabled(){
-                if (this.disabled == undefined) return false;
-
-                if (typeof this.disabled === 'boolean')
-                    return this.disabled;
-                else
-                    return this.disabled == 1? true: false;
+                return this.disabled === undefined? false:
+                    typeof this.disabled === 'boolean'? this.disabled:
+                        this.disabled == 'true'? true:
+                            this.disabled == 1? true:
+                                false;
+            },
+            c_readonly(){
+                return this.readonly === undefined? false:
+                    typeof this.readonly === 'boolean'? this.readonly:
+                        this.readonly == 'true'? true:
+                            this.readonly == 1? true:
+                                false;
             },
             ShowTextarea(){
                 return this.isTextarea == undefined? false: typeof this.isTextarea === 'boolean'? this.isTextarea: this.isTextarea == 'true'? true: false
