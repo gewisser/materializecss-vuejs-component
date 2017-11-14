@@ -10,7 +10,7 @@ matcss_collapsible.vue
                     tr
                         td
                             a(target='_blank')
-                                img#icon-id.circle(alt='', :src="item.photo")
+                                img#icon-id.circle(alt='', :src="item[ratio.photo]")
                         td#title-id(v-html="item[ratio.title]")
             .collapsible-body(@click="OnClick(item, $event)")
                 slot(name="body", :item="item")
@@ -45,7 +45,7 @@ matcss_collapsible.vue
                     else
                         ratioObj = new Function('', 'return '+this.ratioProp)();
 
-                return $.extend({ title: 'title'}, ratioObj);
+                return $.extend({ title: 'title', photo: 'photo'}, ratioObj);
             },
 
             OnClick(item, event) {
@@ -62,7 +62,7 @@ matcss_collapsible.vue
                         ret = currentValue;
                         return false;
                     }
-                })
+                });
 
                 return ret;
             }
