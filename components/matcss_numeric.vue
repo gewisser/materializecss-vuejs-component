@@ -4,12 +4,12 @@ matcss_numeric.vue
 
 <template lang="pug">
     span
-        a.btn.btn-floating.waves-effect.waves-light(style="margin-left: 12px;", @click="OnDecrement")
+        a.btn.btn-floating.waves-effect.waves-light(style="margin-left: 12px;", @click="c_val = c_val - 1")
             i.material-icons remove
         m-input-internal.inline(
         :style="inputStyle",
         :name="name",
-        :val="c_val",
+        :val.sync="c_val",
         :disabled="disabled",
         :validation="validation",
         :is-valid="isValid",
@@ -19,7 +19,7 @@ matcss_numeric.vue
         :placeholder="placeholder",
         numeric="true"
         )
-        a.btn.btn-floating.waves-effect.waves-light(style="margin-left: 5px;", @click="OnIncrement")
+        a.btn.btn-floating.waves-effect.waves-light(style="margin-left: 5px;", @click="c_val = c_val + 1")
             i.material-icons add
 </template>
 
@@ -37,33 +37,40 @@ matcss_numeric.vue
             'dataSuccess',
             'addClass',
             'placeholder',
-            'inputStyle'
+            'inputStyle',
+            'min',
+            'max'
         ],
         name: 'matcss_numeric',
         data() {
             return {
+                oldVal: '0'
             }
         },
         computed:{
-            c_val(){
-                return this.val == undefined || this.val == ''? '0': this.val
+            c_val: {
+                get(){
+                    let ret = this.val == undefined || this.val == ''? '0': this.val;
+
+                    return this.inRange(ret)
+                },
+                set(newValue){
+                    this.$emit('update:val', this.inRange(newValue));
+                }
             }
         },
         components: {
             'm-input-internal': MInput
         },
         methods:{
-            OnDecrement(){
-                let val = parseInt(this.c_val) - 1;
-                this.$emit('update:val', val);
-            },
-            OnIncrement(){
-                let val = parseInt(this.c_val) + 1;
-                this.$emit('update:val', val);
+            inRange(val) {
+                if (this.min != undefined && parseInt(val) < parseInt(this.min))
+                    return parseInt(this.min);
+                if (this.max != undefined && parseInt(val) > parseInt(this.max))
+                    return parseInt(this.max);
+
+                return parseInt(val);
             }
         }
     }
 </script>
-
-<style>
-</style>
