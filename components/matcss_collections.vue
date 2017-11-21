@@ -108,7 +108,7 @@ matcss_collections.vue
                     else
                         ratioObj = new Function('', 'return '+this.ratioProp)();
 
-                return $.extend({ title: 'title', line1: 'line1', line2: 'line2' }, ratioObj);
+                return $.extend({ title: 'title', line1: 'line1', line2: 'line2', photo: 'photo'}, ratioObj);
             },
             OnClick(item, event) {
                 this.$emit('onClick', item, event)
