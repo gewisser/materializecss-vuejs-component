@@ -56,8 +56,7 @@ matcss_input.vue
                 inputClass: {
                     valid: false,
                     invalid: false
-                },
-
+                }
             }
         },
         computed: {
@@ -116,7 +115,7 @@ matcss_input.vue
                     let result = run(val)? 1:0;
 
 
-                    this.informValidation(result)
+                    this.informValidation(result);
                     this.$emit('update:isValid', result);
                 }
 
@@ -149,7 +148,7 @@ matcss_input.vue
             let el ='input';
             el = this.ShowTextarea? 'textarea': el;
 
-            let input = $(this.$el).children(el).keypress(function (e) {
+            this.input = $(this.$el).find(el).keypress(function (e) {
                 let ret = true;
 
                 if (_this.is_numeric)
