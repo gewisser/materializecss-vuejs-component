@@ -7,8 +7,12 @@ matcss_collections.vue
         li.collection-item(v-for="item in items", @dblclick="itemdblClick(item)", @click="OnLiClick(item, $event)", :class="li_class(item)")
             img.circle(v-if="c_avatarMode", :src="item[ratio.photo] !== undefined? item[ratio.photo]: '/avatar_2x.png'", alt='')
             span.title {{ item[ratio.title] }}
-            p.line1(v-if="item[ratio.line1] != undefined && item[ratio.line1] != ''") {{ item[ratio.line1] }}
-            p.line2(v-if="item[ratio.line2] != undefined && item[ratio.line2] != ''") {{ item[ratio.line2] }}
+            br(v-if="item[ratio.line1] != undefined && item[ratio.line1] != '' && !c_avatarMode")
+            span.line1(v-if="item[ratio.line1] != undefined && item[ratio.line1] != '' && !c_avatarMode" ) {{ item[ratio.line1] }}
+            br(v-if="item[ratio.line2] != undefined && item[ratio.line2] != '' && !c_avatarMode")
+            span.line2(v-if="item[ratio.line2] != undefined && item[ratio.line2] != '' && !c_avatarMode" ) {{ item[ratio.line2] }}
+            p.line1(v-if="item[ratio.line1] != undefined && item[ratio.line1] != '' && c_avatarMode") {{ item[ratio.line1] }}
+            p.line2(v-if="item[ratio.line2] != undefined && item[ratio.line2] != '' && c_avatarMode") {{ item[ratio.line2] }}
             .secondary-content(:id="item.id", @click="OnClick(item, $event)", :style="c_scStyle")
                 slot(name="secondary", :item="item")
 
@@ -24,7 +28,7 @@ matcss_collections.vue
             return {
                 JQcollection: undefined,
                 ratio: this.c_ratioProp(),
-                l_selectedId: -100
+                l_selectedId: -1
             }
         },
         mounted(){
@@ -35,14 +39,25 @@ matcss_collections.vue
                 if (val == this.l_selectedId)
                     return;
 
-                this.items.forEach(function (currentValue, index, array) {
-                    if (currentValue.id == val) {
-                        this.SetActive(currentValue, this.JQcollection.children(':eq('+index+')'));
-                        this.$emit('update:selectedId', currentValue.id, true);
-                        return false;
-                    }
-                }, this);
+                this.l_selectedId = val;
+
+                if (val < 0) {
+                    this.SetActive();
+                    this.$emit('update:selectedId', val, true);
+                    return;
+                }
+
+                this.findByIdAndSelect();
             }
+        },
+
+        updated: function () {
+            this.$nextTick(function () {
+                if (this.selectedId < 0)
+                    return;
+
+                this.findByIdAndSelect();
+            })
         },
         computed:{
             c_scStyle(){
@@ -72,23 +87,36 @@ matcss_collections.vue
 
         },
         methods:{
+            findByIdAndSelect(){
+                this.items.forEach(function (currentValue, index, array) {
+                    if (currentValue.id == this.selectedId) {
+                        this.SetActive(this.JQcollection.children(':eq('+index+')'));
+                        this.$emit('update:selectedId', currentValue.id, true);
+                        return false;
+                    }
+                }, this);
+            },
             OnLiClick(item, event){
                 if (item.id == this.l_selectedId)
                     return;
 
-                this.SetActive(item, $(event.target));
+                this.l_selectedId = item.id;
+
+                this.SetActive($(event.target));
                 this.$emit('update:selectedId', item.id, false);
             },
-            SetActive(item, jqevent){
+            SetActive(jqevent){
                 if (this.c_selectedMode) {
                     this.JQcollection.children().removeClass('active');
+
+                    if (jqevent == undefined)
+                        return;
 
                     if (jqevent.hasClass('collection-item'))
                         jqevent.addClass('active');
                     else
                         jqevent.closest('.collection-item').addClass('active');
 
-                    this.l_selectedId = item.id;
                 }
             },
             li_class(item){
