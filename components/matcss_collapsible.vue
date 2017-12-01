@@ -81,6 +81,3 @@ matcss_collapsible.vue
 
     }
 </script>
-
-<style>
-</style>
