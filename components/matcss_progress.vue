@@ -24,7 +24,15 @@ matcss_progress.vue
         computed: {
             st(){
                 let d = this.max - this.min;
-                let percent = (this.val * 100)/d
+
+                let percent = 0;
+
+                if (d > 0) {
+                    percent = (this.val * 100) / d;
+
+                    if (percent < 0)
+                        percent = 100 + percent;
+                }
 
                 this.percent = Math.round((percent)*10)/10;
 
