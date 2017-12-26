@@ -27,10 +27,10 @@ matcss_checkbox.vue
         },
         computed:{
             checkedDOM(){
-                this.checkedIsBool = typeof this.checked === 'boolean'
+                this.checkedIsBool = typeof this.checked === 'boolean';
 
                 if (this.checkedIsBool)
-                    return this.checked
+                    return this.checked;
 
                 return this.checked == 1? true: false
             }
