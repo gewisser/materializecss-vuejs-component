@@ -5,7 +5,7 @@ matcss_modal.vue
 <template lang="pug">
     .modal
         .modal-content
-            h4 {{ caption }}
+            h5 {{ caption }}
             .div(style="margin-top: 22px")
                 slot
         .modal-footer(@click="OnClick")
