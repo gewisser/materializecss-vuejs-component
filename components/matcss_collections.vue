@@ -3,18 +3,22 @@ Created by Roman on 05.09.2017.
 matcss_collections.vue
 
 <template lang="pug">
-    ul.collection
-        li.collection-item(v-for="item in items", @dblclick="itemdblClick(item)", @click="OnLiClick(item, $event)", :class="li_class(item)")
-            img.circle(v-if="c_avatarMode", :src="item[ratio.photo] !== undefined? item[ratio.photo]: '/avatar_2x.png'", alt='')
-            span.title {{ item[ratio.title] }}
-            br(v-if="item[ratio.line1] != undefined && item[ratio.line1] != '' && !c_avatarMode")
-            span.line1(v-if="item[ratio.line1] != undefined && item[ratio.line1] != '' && !c_avatarMode" ) {{ item[ratio.line1] }}
-            br(v-if="item[ratio.line2] != undefined && item[ratio.line2] != '' && !c_avatarMode")
-            span.line2(v-if="item[ratio.line2] != undefined && item[ratio.line2] != '' && !c_avatarMode" ) {{ item[ratio.line2] }}
-            p.line1(v-if="item[ratio.line1] != undefined && item[ratio.line1] != '' && c_avatarMode") {{ item[ratio.line1] }}
-            p.line2(v-if="item[ratio.line2] != undefined && item[ratio.line2] != '' && c_avatarMode") {{ item[ratio.line2] }}
-            .secondary-content(:id="item.id", @click="OnClick(item, $event)", :style="c_scStyle")
-                slot(name="secondary", :item="item")
+    div
+        .center-align.nodata.grey-text.text-lighten-1(v-if="items.length == 0")
+            slot(name="clear")
+                span Список пуст
+        ul.collection(v-if="items.length > 0", @contextmenu="cm($event)")
+            li.collection-item(v-for="item in items", @dblclick="itemdblClick(item, $event)", @click="OnLiClick(item, $event)", :class="li_class(item)")
+                img.circle(v-if="c_avatarMode", :src="item[ratio.photo] !== undefined? item[ratio.photo]: '/avatar_2x.png'", alt='')
+                span.title {{ item[ratio.title] }}
+                br(v-if="item[ratio.line1] != undefined && item[ratio.line1] != '' && !c_avatarMode")
+                span.line1(v-if="item[ratio.line1] != undefined && item[ratio.line1] != '' && !c_avatarMode" ) {{ item[ratio.line1] }}
+                br(v-if="item[ratio.line2] != undefined && item[ratio.line2] != '' && !c_avatarMode")
+                span.line2(v-if="item[ratio.line2] != undefined && item[ratio.line2] != '' && !c_avatarMode" ) {{ item[ratio.line2] }}
+                p.line1(v-if="item[ratio.line1] != undefined && item[ratio.line1] != '' && c_avatarMode") {{ item[ratio.line1] }}
+                p.line2(v-if="item[ratio.line2] != undefined && item[ratio.line2] != '' && c_avatarMode") {{ item[ratio.line2] }}
+                .secondary-content(:id="item.id", @click="OnClick(item, $event)", :style="c_scStyle")
+                    slot(name="secondary", :item="item")
 
 </template>
 
@@ -22,38 +26,30 @@ matcss_collections.vue
     import './../images/avatar_2x.png';
 
     export default {
-        props: ['items', 'scStyle', 'ratioProp', 'avatarMode', 'selectedMode', 'selectedId'],
+        props: ['items', 'scStyle', 'ratioProp', 'avatarMode', 'selectedMode', 'multiselect', 'selectedId'],
         name: 'matcss_collections',
         data(){
             return {
-                JQcollection: undefined,
-                ratio: this.c_ratioProp(),
-                l_selectedId: -1
+                ratio: this.c_ratioProp()
             }
-        },
-        mounted(){
-            this.JQcollection = $(this.$el);
         },
         watch: {
             selectedId(val){
-                if (val == this.l_selectedId)
-                    return;
-
-                this.l_selectedId = val;
-
-                if (val < 0) {
-                    this.SetActive();
-                    this.$emit('update:selectedId', val, true);
+                if (this.selfChange) {
+                    this.selfChange = false;
                     return;
                 }
 
+                this.$emit('OnSelectedChange', true); // false - параметр сисгнализирующий произошло ли событие от нажатия, false - изменили массив selectedId программно
                 this.findByIdAndSelect();
             }
         },
-
+        created(){
+            this.selfChange = false;
+        },
         updated: function () {
             this.$nextTick(function () {
-                if (this.selectedId < 0)
+                if (!this.c_selectedMode || this.selectedId === undefined || this.selectedId.length == 0)
                     return;
 
                 this.findByIdAndSelect();
@@ -84,39 +80,76 @@ matcss_collections.vue
                             this.selectedMode == 1? true:
                                 false;
             },
-
+            c_multiselect(){
+                return this.multiselect === undefined? false:
+                    typeof this.multiselect === 'boolean'? this.multiselect:
+                        this.multiselect == 'true'? true:
+                            this.multiselect == 1? true:
+                                false;
+            }
         },
         methods:{
-            findByIdAndSelect(){
-                this.items.forEach(function (currentValue, index, array) {
-                    if (currentValue.id == this.selectedId) {
-                        this.SetActive(this.JQcollection.children(':eq('+index+')'));
-                        this.$emit('update:selectedId', currentValue.id, true);
-                        return false;
+            JQcollection(){
+                if (this._JQcollection == undefined) {
+                    let JQcollection = $(this.$el).find('ul.collection');
+                    if (JQcollection.length > 0) {
+                        this._JQcollection = JQcollection;
                     }
-                }, this);
+                }
+
+                return this._JQcollection;
+
             },
-            OnLiClick(item, event){
-                if (item.id == this.l_selectedId)
+            findByIdAndSelect(){
+                if (!this.JQcollection())
                     return;
 
-                this.l_selectedId = item.id;
+                this.JQcollection().children().removeClass('active');
 
-                this.SetActive($(event.target));
-                this.$emit('update:selectedId', item.id, false);
+                for (let i = 0; i < this.items.length; i++) {
+                    if (this.selectedId.indexOf(parseInt(this.items[i].id)) != -1)
+                        this.JQcollection().children(':eq(' + i + ')').addClass('active');
+                }
             },
-            SetActive(jqevent){
-                if (this.c_selectedMode) {
-                    this.JQcollection.children().removeClass('active');
+            OnLiClick(item, event){
+                this.$emit('onItemClick', item, event);
 
-                    if (jqevent == undefined)
-                        return;
+                if (!this.c_selectedMode)
+                    return;
 
-                    if (jqevent.hasClass('collection-item'))
-                        jqevent.addClass('active');
-                    else
-                        jqevent.closest('.collection-item').addClass('active');
+                let target = $(event.target);
+                target = target.hasClass('collection-item')? target: target.closest('.collection-item');
 
+
+                if (this.c_multiselect) {
+                    target.toggleClass('active')
+                } else {
+                    this.JQcollection().children().removeClass('active');
+
+                    target.addClass('active');
+                }
+
+                let selids = [];
+
+                const _this = this;
+                this.JQcollection().children('.active').each(function(index, element) {
+                    selids.push(parseInt(_this.items[$(element).index()].id));
+                });
+
+                this.selfChange = true;
+                this.$emit('update:selectedId', selids);
+                this.$emit('OnSelectedChange', false); // false - параметр сисгнализирующий произошло ли событие от нажатия, false - изменили массив selectedId программно
+            },
+            cm(e){
+                if (this.c_multiselect) {
+                    this.selfChange = true;
+
+                    this.JQcollection().children().removeClass('active');
+
+                    this.$emit('update:selectedId', [-1]);
+                    this.$emit('OnSelectedChange', false); // false - параметр сисгнализирующий произошло ли событие от нажатия, false - изменили массив selectedId программно
+
+                    e.preventDefault();
                 }
             },
             li_class(item){
@@ -136,13 +169,13 @@ matcss_collections.vue
                     else
                         ratioObj = new Function('', 'return '+this.ratioProp)();
 
-                return $.extend({ title: 'title', line1: 'line1', line2: 'line2', photo: 'photo'}, ratioObj);
+                return $.extend({ title: 'title', line1: 'line1', line2: 'line2', photo: 'photo', class: 'class'}, ratioObj);
             },
             OnClick(item, event) {
                 this.$emit('onClick', item, event)
             },
-            itemdblClick(item){
-                this.$emit('onItemDblClick', item)
+            itemdblClick(item, $event){
+                this.$emit('onItemDblClick', item, $event)
             }
         }
     }
