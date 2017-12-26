@@ -84,6 +84,11 @@ matcss_select.vue
             },
 
             initItems(){
+                if (this.items == undefined) {
+                    this.items_c = [];
+                    return;
+                }
+
                 const pre_item = [
                     {id: -1, text: 'Выберите значение из списка', disabled: true}
                 ];
