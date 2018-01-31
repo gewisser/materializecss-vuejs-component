@@ -20,7 +20,7 @@ matcss_select.vue
 <script>
     export default {
         name: 'matcss_select',
-        props: ['items', 'name', 'selectedId', 'iconsClass', 'ratioProp'],
+        props: ['items', 'name', 'selectedId', 'iconsClass', 'ratioProp', 'noSelectedId'],
         data () {
             return {
                 isInit: false,
@@ -90,7 +90,7 @@ matcss_select.vue
                 }
 
                 const pre_item = [
-                    {id: -1, text: 'Выберите значение из списка', disabled: true}
+                    {id: this.noSelectedId, text: 'Выберите значение из списка', disabled: true}
                 ];
 
                 this.items_c = pre_item.concat(this.items);
