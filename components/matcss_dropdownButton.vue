@@ -3,11 +3,10 @@ Created by Roman on 23.08.2017.
 matcss_dropdownButton.vue
 
 <template lang="pug">
-    a.dropdown-button.btn(:data-activates='GUIDID')
+    a.dropdown-button.btn(:data-activates='GUIDID', class="truncate")
         slot
             i.material-icons.left(v-if="isIconLeft") {{ iconLeft }}
             | {{ selectedText }}
-
         m-list-internal(
         :items="items",
         :id="GUIDID",
