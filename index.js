@@ -6,6 +6,16 @@
  * @param conditionVal
  * @returns {string}
  */
+
+export function is_bool(val) {
+    return val === undefined? false:
+        typeof val === 'boolean'? val:
+            val == 'true'? true:
+                val == 1? true:
+                    false;
+}
+
+
 export function implodeObj(array, idsName, conditionKey, conditionVal) {
     var ret = '';
 
