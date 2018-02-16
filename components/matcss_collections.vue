@@ -23,6 +23,8 @@ matcss_collections.vue
 </template>
 
 <script>
+    import {is_bool} from 'materializecss-vuejs-component';
+
     import './../images/avatar_2x.png';
 
     export default {
@@ -67,25 +69,13 @@ matcss_collections.vue
                 return style;
             },
             c_avatarMode(){
-                return this.avatarMode === undefined? false:
-                    typeof this.avatarMode === 'boolean'? this.avatarMode:
-                        this.avatarMode == 'true'? true:
-                            this.avatarMode == 1? true:
-                                false;
+                return is_bool(this.avatarMode);
             },
             c_selectedMode(){
-                return this.selectedMode === undefined? false:
-                    typeof this.selectedMode === 'boolean'? this.selectedMode:
-                        this.selectedMode == 'true'? true:
-                            this.selectedMode == 1? true:
-                                false;
+                return is_bool(this.selectedMode);
             },
             c_multiselect(){
-                return this.multiselect === undefined? false:
-                    typeof this.multiselect === 'boolean'? this.multiselect:
-                        this.multiselect == 'true'? true:
-                            this.multiselect == 1? true:
-                                false;
+                return is_bool(this.multiselect);
             }
         },
         methods:{
