@@ -84,7 +84,7 @@ export function hasParent(stop, parent, target) {
     var ret = false;
     var cur_parent = target.target;
 
-    while ( cur_parent !== undefined && ((cur_parent.classList !== undefined && !cur_parent.classList.contains(stop)) || cur_parent.id != stop)) {
+    while ( cur_parent !== undefined && ((cur_parent.classList != undefined && !cur_parent.classList.contains(stop)) && cur_parent.id !== stop)) {
         if ((cur_parent.classList !== undefined && cur_parent.classList.contains(parent)) || cur_parent.id == parent) {
             ret = true;
             break;
