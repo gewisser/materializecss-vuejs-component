@@ -6,7 +6,7 @@ matcss_input.vue
     .input-field
         i.material-icons.prefix(v-if="iconPrefix !== undefined") {{ iconPrefix }}
         input(
-            v-if="!ShowTextarea",
+            v-if="!showTextarea",
             :id="GUIDID",
             :value="val",
             @change="onChange",
@@ -18,7 +18,7 @@ matcss_input.vue
         )
 
         textarea.materialize-textarea(
-            v-if="ShowTextarea",
+            v-if="showTextarea",
             :id="GUIDID",
             @change="onChange",
             :class="c_inputClass",
@@ -32,6 +32,8 @@ matcss_input.vue
 </template>
 
 <script>
+    import {is_bool} from 'materializecss-vuejs-component';
+
     export default {
         props: [
             'name',
@@ -74,24 +76,16 @@ matcss_input.vue
                 return Object.assign({}, this.inputClass, addClass);
             },
             c_disabled(){
-                return this.disabled === undefined? false:
-                    typeof this.disabled === 'boolean'? this.disabled:
-                        this.disabled == 'true'? true:
-                            this.disabled == 1? true:
-                                false;
+                return is_bool(this.disabled);
             },
             c_readonly(){
-                return this.readonly === undefined? false:
-                    typeof this.readonly === 'boolean'? this.readonly:
-                        this.readonly == 'true'? true:
-                            this.readonly == 1? true:
-                                false;
+                return is_bool(this.readonly);
             },
-            ShowTextarea(){
-                return this.isTextarea == undefined? false: typeof this.isTextarea === 'boolean'? this.isTextarea: this.isTextarea == 'true'? true: false
+            showTextarea(){
+                return is_bool(this.isTextarea);
             },
             is_numeric(){
-                return this.numeric == undefined? false: typeof this.numeric === 'boolean'? this.numeric: this.numeric == 'true'? true: false
+                return is_bool(this.numeric);
             }
         },
         created(){
@@ -105,7 +99,7 @@ matcss_input.vue
         methods: {
             onChange() {
                 let el ='input';
-                el = this.ShowTextarea? 'textarea': el;
+                el = this.showTextarea? 'textarea': el;
                 this.UpdateVal($(this.$el).children(el).val());
             },
 
@@ -146,7 +140,7 @@ matcss_input.vue
             const _this = this;
 
             let el ='input';
-            el = this.ShowTextarea? 'textarea': el;
+            el = this.showTextarea? 'textarea': el;
 
             this.input = $(this.$el).find(el).keypress(function (e) {
                 let ret = true;
