@@ -4,7 +4,7 @@ matcss_select.vue
 
 <template lang="pug">
     .input-field
-        select(:class="iconsClass !== undefined? 'icons':''")
+        select(:class="iconsClass !== undefined? 'icons':''", :disabled="c_readonly")
             option(
             v-for="item in items_c",
             :value="item.id",
@@ -18,9 +18,11 @@ matcss_select.vue
 </template>
 
 <script>
+    import {is_bool} from 'materializecss-vuejs-component';
+
     export default {
         name: 'matcss_select',
-        props: ['items', 'name', 'selectedId', 'iconsClass', 'ratioProp', 'noSelectedId'],
+        props: ['items', 'name', 'selectedId', 'iconsClass', 'ratioProp', 'noSelectedId', 'readonly'],
         data () {
             return {
                 isInit: false,
@@ -33,6 +35,11 @@ matcss_select.vue
         },
         created(){
             this.initItems();
+        },
+        computed:{
+            c_readonly(){
+                return is_bool(this.readonly);
+            }
         },
         watch: {
             items(){
