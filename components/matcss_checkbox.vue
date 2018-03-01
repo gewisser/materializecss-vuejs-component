@@ -4,13 +4,15 @@ matcss_checkbox.vue
 
 <template lang="pug">
     div
-        input(type="checkbox", :id="GUIDID", :checked="checkedDOM")
+        input(type="checkbox", :id="GUIDID", :checked="checkedDOM", :disabled="c_readonly")
         label(:for="GUIDID") {{ name }}
 </template>
 
 <script>
+    import {is_bool} from 'materializecss-vuejs-component';
+
     export default {
-        props: ['name', 'checked'],
+        props: ['name', 'checked', 'readonly'],
         name: 'matcss_checkbox',
         data () {
             return {
@@ -33,6 +35,9 @@ matcss_checkbox.vue
                     return this.checked;
 
                 return this.checked == 1? true: false
+            },
+            c_readonly(){
+                return is_bool(this.readonly);
             }
         },
         watch: {
