@@ -83,7 +83,7 @@ matcss_dropdownButton.vue
             }
         },
         mounted () {
-            this.$nextTick(function () { // пришлось использовать, потому что в этот момент плагин vue-portal еще не переместил список m-list-internal в другое место
+            this.$nextTick(function () {
                 $(this.$el).dropdown();
             })
         }
