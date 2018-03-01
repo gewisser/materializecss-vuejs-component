@@ -6,15 +6,17 @@ matcss_switch.vue
     .switch
         label
             | {{ labelOff }}
-            input(type='checkbox', :checked="checkedDOM")
+            input(type='checkbox', :checked="checkedDOM", :disabled="c_readonly")
             span.lever
             | {{ labelOn }}
 </template>
 
 <script>
+    import {is_bool} from 'materializecss-vuejs-component';
+
     export default {
         name: 'matcss_switch',
-        props: ['labelOff', 'labelOn', 'checked'],
+        props: ['labelOff', 'labelOn', 'checked', 'readonly'],
         data () {
             return {
                 elInp: undefined,
@@ -29,6 +31,9 @@ matcss_switch.vue
                     return this.checked;
 
                 return this.checked == 1? true: false
+            },
+            c_readonly(){
+                return is_bool(this.readonly);
             }
         },
         watch: {
