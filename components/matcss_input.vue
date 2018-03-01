@@ -32,7 +32,7 @@ matcss_input.vue
 </template>
 
 <script>
-    import {is_bool} from 'materializecss-vuejs-component';
+    import {is_bool, get_obj} from 'materializecss-vuejs-component';
 
     export default {
         props: [
@@ -66,14 +66,7 @@ matcss_input.vue
                 return (this.val !== undefined && this.val !== '') || (this.placeholder !== undefined && this.placeholder !== '');
             },
             c_inputClass(){
-                let addClass;
-
-                if (typeof this.addClass === 'object')
-                    addClass = this.addClass;
-                else
-                    addClass = new Function('', 'return '+this.addClass)();
-
-                return Object.assign({}, this.inputClass, addClass);
+                return get_obj(this.addClass, this.inputClass);
             },
             c_disabled(){
                 return is_bool(this.disabled);
