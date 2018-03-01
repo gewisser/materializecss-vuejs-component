@@ -3,10 +3,15 @@ Created by Roman on 01.02.2018.
 matcss_datepicker.vue
 
 <template lang="pug">
-    input.datepicker(type='text')
+    .input-field
+        i.material-icons.prefix(v-if="iconPrefix !== undefined") {{ iconPrefix }}
+        input.datepicker(type='text', :id="GUIDID", :class="c_class")
+        label(style="width: 100%;", :for='GUIDID', :class="{ active: textExist}") {{ name }}
 </template>
 
 <script>
+    import {get_obj} from 'materializecss-vuejs-component';
+
     jQuery.extend( jQuery.fn.pickadate.defaults, {
         monthsFull: [ 'января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря' ],
         monthsShort: [ 'янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек' ],
@@ -23,10 +28,10 @@ matcss_datepicker.vue
 
     export default {
         name: 'matcss_datepicker',
-        props: ['val'],
+        props: ['val', 'placeholder', 'name', 'iconPrefix', 'inputClass'],
         data() {
             return {
-
+                GUIDID: undefined
             }
         },
         watch: {
@@ -36,9 +41,20 @@ matcss_datepicker.vue
 
             }
         },
+        created(){
+            this.GUIDID = Materialize.guid();
+        },
+        computed: {
+            textExist() {
+                return (this.val !== undefined && this.val !== '') || (this.placeholder !== undefined && this.placeholder !== '');
+            },
+            c_class(){
+                return get_obj(this.inputClass);
+            }
+        },
         mounted () {
             this.$nextTick(function () {
-                this.datepicker = $(this.$el);
+                this.datepicker = $(this.$el).find('.datepicker');
 
                 const _this = this;
 
