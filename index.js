@@ -1,12 +1,3 @@
-/**
- * Returns a string from the 'idsName' keys separated by a comma with the value of the key 'conditionKey' equals 'conditionVal'
- * @param array
- * @param idsName
- * @param conditionKey
- * @param conditionVal
- * @returns {string}
- */
-
 export function is_bool(val) {
     return val === undefined? false:
         typeof val === 'boolean'? val:
@@ -15,6 +6,29 @@ export function is_bool(val) {
                     false;
 }
 
+export function get_obj(val, ext) {
+    let obj;
+
+    if (typeof val === 'object')
+        obj = val;
+    else
+        obj = new Function('', 'return '+val)();
+
+    if (ext !== undefined && typeof ext === 'object')
+        return Object.assign({}, ext, obj);
+    else
+        return obj;
+}
+
+
+/**
+ * Returns a string from the 'idsName' keys separated by a comma with the value of the key 'conditionKey' equals 'conditionVal'
+ * @param array
+ * @param idsName
+ * @param conditionKey
+ * @param conditionVal
+ * @returns {string}
+ */
 
 export function implodeObj(array, idsName, conditionKey, conditionVal) {
     var ret = '';
