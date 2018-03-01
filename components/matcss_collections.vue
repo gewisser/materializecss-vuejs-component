@@ -136,7 +136,7 @@ matcss_collections.vue
 
                     this.JQcollection().children().removeClass('active');
 
-                    this.$emit('update:selectedId', [-1]);
+                    this.$emit('update:selectedId', []);
                     this.$emit('OnSelectedChange', false); // false - параметр сисгнализирующий произошло ли событие от нажатия, false - изменили массив selectedId программно
 
                     e.preventDefault();
