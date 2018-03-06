@@ -17,27 +17,42 @@ matcss_modal.vue
 </template>
 
 <script>
+    import {is_bool} from 'materializecss-vuejs-component';
+
     export default {
         props: ['caption', 'buttonCancel', 'buttonOk', 'show'],
         name: 'matcss_modal',
+        computed: {
+            c_show(){
+                return is_bool(this.show);
+            },
+        },
         methods:{
+            setShow(val){
+                is_bool(val)? this.mod.modal('open'): this.mod.modal('close')
+            },
+
             OnClick(event) {
                 this.$emit('onClick', event)
             }
         },
         watch: {
-            show(){
-                this.show? $(this.$el).modal('open'): $(this.$el).modal('close')
+            show(val){
+                this.setShow(val);
             }
         },
         mounted(){
             const _this = this;
 
-            $(this.$el).modal({
+            this.mod = $(this.$el);
+
+            this.mod.modal({
                 complete: function() {
                     _this.$emit('update:show', false);
                 } // Callback for Modal close
             });
+
+            this.setShow(this.show);
         }
     }
 </script>
