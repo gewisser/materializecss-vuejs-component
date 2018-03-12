@@ -3,9 +3,9 @@ Created by Roman on 23.08.2017.
 matcss_dropdownButton.vue
 
 <template lang="pug">
-    a.dropdown-button.btn(:data-activates='GUIDID', class="truncate")
+    a.dropdown-button.truncate(:data-activates='GUIDID')
         slot
-            i.material-icons.left(v-if="isIconLeft") {{ iconLeft }}
+            i.material-icons(v-if="isIconLeft", :class="iconClass") {{ icon }}
             | {{ selectedText }}
         m-list-internal(
         :items="items",
@@ -22,7 +22,7 @@ matcss_dropdownButton.vue
     import MList from './matcss_list.vue';
 
     export default {
-        props: ['items', 'name', 'selectedId', 'aclass', 'iconLeft', 'ratioProp'],
+        props: ['items', 'name', 'selectedId', 'aclass', 'icon', 'iconClass', 'ratioProp'],
         name: 'matcss_dropdownButton',
         data () {
             return {
@@ -36,7 +36,7 @@ matcss_dropdownButton.vue
         },
         computed:{
             isIconLeft(){
-                return this.iconLeft !== undefined && this.iconLeft != ''
+                return this.icon !== undefined && this.icon != ''
             },
             selectedText(){
                 var text = '';
