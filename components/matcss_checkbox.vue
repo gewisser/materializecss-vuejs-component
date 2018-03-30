@@ -4,7 +4,7 @@ matcss_checkbox.vue
 
 <template lang="pug">
     div
-        input(type="checkbox", :id="GUIDID", :checked="checkedDOM", :disabled="c_readonly")
+        input(type="checkbox", :id="GUIDID", :checked="c_checked", :disabled="c_readonly")
         label(:for="GUIDID") {{ name }}
 </template>
 
@@ -12,12 +12,11 @@ matcss_checkbox.vue
     import {is_bool} from 'materializecss-vuejs-component';
 
     export default {
-        props: ['name', 'checked', 'readonly'],
+        props: ['name', 'checked', 'readonly', 'indeterminate'],
         name: 'matcss_checkbox',
         data () {
             return {
                 GUIDID: undefined,
-                elInp: undefined,
                 checkedIsBool: false
             }
         },
@@ -26,15 +25,13 @@ matcss_checkbox.vue
             this.elInp = $(this.$el).find('input').click(function(){ // событие onClick или onChange не работают, пришлось использовать события jquery
                 _this.$emit('update:checked', _this.getBoolVal($(this).prop('checked')));
             });
+            //this.elInp[0].indeterminate = is_bool(this.indeterminate);
         },
         computed:{
-            checkedDOM(){
+            c_checked(){
                 this.checkedIsBool = typeof this.checked === 'boolean';
 
-                if (this.checkedIsBool)
-                    return this.checked;
-
-                return this.checked == 1? true: false
+                return is_bool(this.checked);
             },
             c_readonly(){
                 return is_bool(this.readonly);
@@ -44,8 +41,13 @@ matcss_checkbox.vue
             checked(newVal){
                 let mod_newVal = this.getBoolVal(newVal);
 
+                this.$emit('update:indeterminate', false);
+
                 if (this.getBoolVal(this.elInp.prop('checked')) != mod_newVal)
                     this.$emit('update:checked', mod_newVal);
+            },
+            indeterminate(val) {
+                this.elInp[0].indeterminate = is_bool(val);
             }
         },
         created(){
