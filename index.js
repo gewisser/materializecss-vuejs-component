@@ -7,7 +7,7 @@ export function is_bool(val) {
 }
 
 export function get_obj(val, ext) {
-    let obj;
+    var obj;
 
     if (typeof val === 'object')
         obj = val;
