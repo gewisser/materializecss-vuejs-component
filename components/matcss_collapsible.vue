@@ -9,16 +9,16 @@ matcss_collapsible.vue
                 span Список пуст
         ul(:class="cclass !== undefined? cclass: ''")
             li(v-for="(item, index) in items", :id="item.id")
-            .collapsible-header(@click="OnClick(item, $event)")
+                .collapsible-header(@click="OnClick(item, $event)")
                     slot(name="header", :item="item")
-                    //table
-                    tr
-                        td
-                            a(target='_blank')
-                                img#icon-id.circle(alt='', :src="item[ratio.photo]")
-                        td#title-id(v-html="item[ratio.title]")
-            .collapsible-body(@click="OnClick(item, $event)")
-                    slot(name="body", :item="item" :index="index")
+                        //table
+                            tr
+                                td
+                                    a(target='_blank')
+                                        img#icon-id.circle(alt='', :src="item[ratio.photo]")
+                                td#title-id(v-html="item[ratio.title]")
+                .collapsible-body(@click="OnClick(item, $event)")
+                        slot(name="body", :item="item" :index="index")
 
 </template>
 
@@ -75,8 +75,6 @@ matcss_collapsible.vue
         },
         mounted(){
             this.collapsbl = $(this.$el).children('ul');
-
-            console.log(this.collapsbl);
 
             this.collapsbl.collapsible({
                     onOpen: el => {
