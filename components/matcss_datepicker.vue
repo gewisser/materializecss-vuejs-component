@@ -36,9 +36,11 @@ matcss_datepicker.vue
         },
         watch: {
             val(newVal){
+                if (newVal == null || newVal == '')
+                    return;
+
                 const picker = this.datepicker.pickadate('picker');
                 picker.set('select', newVal, { format: 'yyyy-mm-dd' })
-
             }
         },
         created(){
