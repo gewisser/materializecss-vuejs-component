@@ -3,38 +3,44 @@ Created by Roman on 12.09.2017.
 matcss_collapsible.vue
 
 <template lang="pug">
-    ul
-        li(v-for="item in items", :id="item.id")
+    div
+        .center-align.nodata.grey-text.text-lighten-1(v-if="items.length == 0")
+            slot(name="clear")
+                span Список пуст
+        ul(:class="cclass !== undefined? cclass: ''")
+            li(v-for="(item, index) in items", :id="item.id")
             .collapsible-header(@click="OnClick(item, $event)")
-                table
+                    slot(name="header", :item="item")
+                    //table
                     tr
                         td
                             a(target='_blank')
                                 img#icon-id.circle(alt='', :src="item[ratio.photo]")
                         td#title-id(v-html="item[ratio.title]")
             .collapsible-body(@click="OnClick(item, $event)")
-                slot(name="body", :item="item")
+                    slot(name="body", :item="item" :index="index")
 
 </template>
 
 <script>
     export default {
-        props: ['items', 'ratioProp'],
+        props: ['items', 'ratioProp', 'cclass'],
         name: 'matcss_collapsible',
         data(){
             return {
                 ratio: this.c_ratioProp()
             }
         },
-        watch:{
+/*        watch:{
             items(val){
-                const collapsbl = $(this.$el);
+                if (this.collapsbl == undefined)
+                    return;
 
-                collapsbl.children().each(function( index, element ) {
+                this.collapsbl.children().each(function( index, element ) {
                     collapsbl.collapsible('close', index)
                 })
             }
-        },
+        },*/
         methods:{
             c_ratioProp(){
                 let ratioObj = {};
@@ -68,7 +74,11 @@ matcss_collapsible.vue
             }
         },
         mounted(){
-            $(this.$el).collapsible({
+            this.collapsbl = $(this.$el).children('ul');
+
+            console.log(this.collapsbl);
+
+            this.collapsbl.collapsible({
                     onOpen: el => {
                         this.$emit('onOpen', this.findItem(el.index()))
                     },
