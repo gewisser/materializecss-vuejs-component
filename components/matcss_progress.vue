@@ -11,6 +11,7 @@ matcss_progress.vue
 </template>
 
 <script>
+    import {is_bool} from 'materializecss-vuejs-component';
 
     export default {
         props: ['val', 'min', 'max', 'mode', 'label'],
@@ -49,11 +50,9 @@ matcss_progress.vue
                 return mode;
             },
             isLabel(){
-                let isLabel = this.label != undefined && this.label == 1? true: false;
-
+                let isLabel = is_bool(this.label);
                 this.divrows = isLabel? 's8': 's12';
-
-                return isLabel
+                return isLabel;
             }
         }
     }
