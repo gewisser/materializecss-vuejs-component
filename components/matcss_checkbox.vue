@@ -25,7 +25,8 @@ matcss_checkbox.vue
             this.elInp = $(this.$el).find('input').click(function(){ // событие onClick или onChange не работают, пришлось использовать события jquery
                 _this.$emit('update:checked', _this.getBoolVal($(this).prop('checked')));
             });
-            //this.elInp[0].indeterminate = is_bool(this.indeterminate);
+
+            this.elInp[0].indeterminate = is_bool(this.indeterminate);
         },
         computed:{
             c_checked(){
