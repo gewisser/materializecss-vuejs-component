@@ -5,16 +5,24 @@ matcss_autocomplete.vue
 <template lang="pug">
     .input-field
         i.material-icons.prefix(v-if="iconPrefix !== undefined") {{ iconPrefix }}
-        input.autocomplete(:id="GUIDID", type='text', :class="{ valid: textExist }")
+        input.autocomplete(
+            :id="GUIDID",
+            type='text',
+            :class="{ valid: textExist }",
+            @change="onChange",
+            :disabled="c_disabled",
+            :readonly="c_readonly"
+        )
         label(:for="GUIDID", :class="{ active: textExist}") {{ name }}
 
 </template>
 
 <script>
     import pix from './../images/pixel.png';
+    import {is_bool} from 'materializecss-vuejs-component';
 
     export default {
-        props: ['name', 'val', 'url', 'iconPrefix'],
+        props: ['name', 'val', 'url', 'iconPrefix', 'disabled', 'readonly'],
         name: 'matcss_autocomplete',
         data () {
             return {
@@ -30,22 +38,40 @@ matcss_autocomplete.vue
         computed: {
             textExist(){
                 return this.val !== undefined && this.val.itemName !== undefined && this.val.itemName !== '';
-            }
+            },
+            c_disabled(){
+                return is_bool(this.disabled);
+            },
+            c_readonly(){
+                return is_bool(this.readonly);
+            },
+
         },
         watch: {
             val: {
                 handler(val, oldVal){
-                    if (val == undefined) {
-                        this.inputElement.val('');
-                        this.curInputVal = '';
-                    } else
-                    if (val.itemName !== undefined && val.itemName != this.curInputVal) {
-                        this.inputElement.val(val.itemName);
-                        this.curInputVal = val.itemName;
-                    }
+                    this.initVal(val);
                 },
                 deep: true
             }
+        },
+
+        methods:{
+            initVal(val_obj){
+                if (val_obj == undefined) {
+                    this.inputElement.val('');
+                    this.curInputVal = '';
+                } else if (val_obj.itemName !== undefined && val_obj.itemName != this.curInputVal) {
+                    this.inputElement.val(val_obj.itemName);
+                    this.curInputVal = val_obj.itemName;
+                }
+            },
+            onChange() {
+                let aval = $(this.$el).children('input').val();
+                if (aval == '')
+                    this.$emit('update:val', undefined);
+
+            },
         },
         mounted(){
             this.inputElement = $(this.$el).find('input');
@@ -121,6 +147,8 @@ matcss_autocomplete.vue
                     });
                 }, 600)
             });
+
+            this.initVal(this.val);
         }
 
     }
