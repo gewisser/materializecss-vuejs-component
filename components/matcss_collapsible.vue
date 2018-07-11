@@ -6,17 +6,11 @@ matcss_collapsible.vue
     div
         .center-align.nodata.grey-text.text-lighten-1(v-if="items.length == 0")
             slot(name="clear")
-                span Список пуст
+                span This list is empty :(
         ul(:class="cclass !== undefined? cclass: ''")
             li(v-for="(item, index) in items", :id="item.id")
                 .collapsible-header(@click="OnClick(item, $event)")
                     slot(name="header", :item="item")
-                        //table
-                            tr
-                                td
-                                    a(target='_blank')
-                                        img#icon-id.circle(alt='', :src="item[ratio.photo]")
-                                td#title-id(v-html="item[ratio.title]")
                 .collapsible-body(@click="OnClick(item, $event)")
                         slot(name="body", :item="item" :index="index")
 
@@ -24,36 +18,9 @@ matcss_collapsible.vue
 
 <script>
     export default {
-        props: ['items', 'ratioProp', 'cclass'],
+        props: ['items', 'cclass'],
         name: 'matcss_collapsible',
-        data(){
-            return {
-                ratio: this.c_ratioProp()
-            }
-        },
-/*        watch:{
-            items(val){
-                if (this.collapsbl == undefined)
-                    return;
-
-                this.collapsbl.children().each(function( index, element ) {
-                    collapsbl.collapsible('close', index)
-                })
-            }
-        },*/
         methods:{
-            c_ratioProp(){
-                let ratioObj = {};
-
-                if (this.ratioProp !== undefined)
-                    if (typeof this.ratioProp === 'object')
-                        ratioObj = this.ratioProp;
-                    else
-                        ratioObj = new Function('', 'return '+this.ratioProp)();
-
-                return $.extend({ title: 'title', photo: 'photo'}, ratioObj);
-            },
-
             OnClick(item, event) {
                 this.$emit('onClick', item, event)
             },
