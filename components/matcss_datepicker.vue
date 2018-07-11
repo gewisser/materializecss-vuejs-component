@@ -12,6 +12,7 @@ matcss_datepicker.vue
 <script>
     import {get_obj} from 'materializecss-vuejs-component';
 
+/*
     jQuery.extend( jQuery.fn.pickadate.defaults, {
         monthsFull: [ 'января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря' ],
         monthsShort: [ 'янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек' ],
@@ -24,6 +25,7 @@ matcss_datepicker.vue
         format: 'd mmmm yyyy г.',
         formatSubmit: 'yyyy-mm-dd'
     });
+*/
 
 
     export default {
@@ -63,14 +65,19 @@ matcss_datepicker.vue
                 this.datepicker.pickadate({
                     selectMonths: true, // Creates a dropdown to control month
                     selectYears: 15, // Creates a dropdown of 15 years to control year,
-                    today: 'Сегодня',
+/*                    today: 'Сегодня',
                     clear: 'Очистить',
-                    close: 'Ok',
+                    close: 'Ok',*/
                     closeOnSelect: false, // Close upon selecting a date,
                     onSet: function(thingSet) {
                         _this.$emit('update:val', this.get('select', 'yyyy-mm-dd'));
                     }
                 });
+
+                if (this.val !== undefined && this.val !== null && this.val !== '') {
+                    const picker = this.datepicker.pickadate('picker');
+                    picker.set('select', this.val, {format: 'yyyy-mm-dd'})
+                }
             })
         },
     }
