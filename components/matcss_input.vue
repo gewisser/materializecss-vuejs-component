@@ -14,7 +14,8 @@ matcss_input.vue
             :class="c_inputClass",
             :disabled="c_disabled",
             :readonly="c_readonly",
-            :placeholder="placeholder"
+            :placeholder="placeholder",
+            :autocomplete="autocomplete === undefined? false: autocomplete"
         )
 
         textarea.materialize-textarea(
@@ -49,7 +50,8 @@ matcss_input.vue
             'addClass',
             'isTextarea',
             'placeholder',
-            'numeric'
+            'numeric',
+            'autocomplete'
         ],
         name: 'matcss_input',
         data () {
