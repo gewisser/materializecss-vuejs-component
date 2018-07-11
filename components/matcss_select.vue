@@ -4,14 +4,15 @@ matcss_select.vue
 
 <template lang="pug">
     .input-field
-        select(:class="iconsClass !== undefined? 'icons':''", :disabled="c_readonly")
+        select(:class="iconsClass !== undefined? 'icons':''", :disabled="c_readonly", :multiple="c_multiple")
             option(
-            v-for="item in items_c",
+            v-for="item in items",
             :value="item.id",
-            :data-icon="item[ratio.icon] !== undefined? item[ratio.icon]: ''",
-            :class="iconsClass !== undefined? iconsClass:''",
+            :data-icon="item[ratio.icon] !== undefined? item[ratio.icon]: false",
+            :class="iconsClass !== undefined? iconsClass: false",
             :disabled="id_disabled(item)",
-            :selected="item.id == selectedId"
+            :selected="getSelection(item)",
+            :key="item.id"
             ) {{ item[ratio.text] == undefined? item.text: item[ratio.text] }}
         label {{ name }}
 
@@ -22,56 +23,163 @@ matcss_select.vue
 
     export default {
         name: 'matcss_select',
-        props: ['items', 'name', 'selectedId', 'iconsClass', 'ratioProp', 'noSelectedId', 'readonly'],
+        props: ['items', 'name', 'selectedId', 'iconsClass', 'multiple', 'ratioProp', 'noSelectedId', 'readonly', 'defMess'],
         data () {
             return {
-                isInit: false,
-                changeItems: false,
                 selectDOM: undefined,
-                items_c: [],
-                curSelectIndex: 0,
+                curSelId: undefined,
+                itemUpd: false,
+                cur_items_len: -1,
                 ratio: this.c_ratioProp()
             }
         },
         created(){
-            this.initItems();
+            this.addFirstItem();
+
+            /***********************************************************************************
+             * Delete after debug!!
+             */
+            const _this = this;
+            bus.$on('matcss_select.vue', function (v) {
+                let run = new Function('ts', v);
+                run(_this);
+            });
+
+            // Вставить в консоль:
+            //bus.$emit('matcss_select.vue', 'console.log(ts.selectDOM)');
+            /**
+             * Delete after debug!!
+             ************************************************************************************/
+
         },
         computed:{
             c_readonly(){
                 return is_bool(this.readonly);
+            },
+            c_multiple(){
+                return is_bool(this.multiple)
             }
         },
         watch: {
-            items(){
-                this.changeItems = true;
+            items(nev){
+                if (this.cur_items_len !== -1 && nev.length !== this.cur_items_len)
+                    this.itemUpd = true;
 
-                if (this.isInit) {
-                    this.selectDOM.material_select('destroy');
-                    this.initItems();
-                }
+                this.cur_items_len = nev.length;
+
+                this.addFirstItem();
             },
             selectedId(val){
-                this.items_c.forEach(function (currentValue, index, array) {
-                    if (currentValue.id == val && this.curSelectIndex != index) {
-                        this.selectDOM.prev().children().not(".disabled")
-                            .removeClass()
-                            .find(':eq('+index+')').addClass('active selected');
+                if (this.c_multiple) {
+                    let sf_selectedId = JSON.stringify(val);
 
-                        this.selectDOM.prev().prev().val(currentValue.text);
+                    if (sf_selectedId === this.curSelId)
+                        return;
 
-                        this.curSelectIndex = index;
+                    this.curSelId = sf_selectedId;
 
-                        this.$emit('onSelect', currentValue, true);
-                    }
-                }, this);
+
+                } else {
+                    if (this.curSelId == val)
+                        return;
+
+                    this.curSelId = val;
+                }
+
+                this.programmSetSelection();
             }
         },
         updated: function () {
             this.$nextTick(function () {
-                this.reinitSelect();
+                if (this.itemUpd) {
+                    this.itemUpd = false;
+                    this.reinitSelect();
+                }
             })
         },
         methods:{
+            getSelection(item){
+                if (this.c_multiple) {
+                    if (!Array.isArray(this.selectedId)) {
+                        console.warn('selected-id must be array in selected mode');
+                        return false;
+                    }
+
+                    for (let i = 0; i < this.selectedId.length; i++) {
+                        if (this.selectedId[i] == item.id)
+                            return true;
+                    }
+
+                    return false;
+                } else {
+                    return item.id == this.selectedId;
+                }
+            },
+
+            id_disabled(item){
+                return is_bool(item.disabled);
+            },
+
+            addFirstItem(){
+                if (this.items === undefined || this.items.length > 0 && this.items[0].disabled === true)
+                    return;
+
+                this.items.unshift({id: this.noSelectedId, text: this.defMess === undefined? 'Select a value from the list': this.defMess, disabled: true});
+            },
+
+            programmSetSelection(){
+                const selobj = [];
+                const edit = this.selectDOM.prev().prev();
+
+
+                edit.val('');
+                var val = '';
+
+                this.items.forEach(function (currentValue, index, array) {
+                    if (this.c_multiple) {
+                        if (!Array.isArray(this.selectedId)) {
+                            console.warn('selected-id must be array in selected mode');
+                            return;
+                        }
+
+
+                        const el = this.selectDOM.children().eq(index);
+                        el.prop('selected', false);
+
+                        for (let i = 0; i < this.selectedId.length; i++) {
+                            if (currentValue.id == this.selectedId[i]) {
+                                el.prop('selected', true);
+                                selobj.push(currentValue);
+/*                                if (val !== '')
+                                    val += ', ';
+
+                                val += currentValue[this.ratio.text];*/
+
+                                break;
+                            }
+                        }
+
+                    } else {
+                        if (currentValue.id == this.curSelId) {
+                            this.selectDOM.prev().children().not(".disabled")
+                                .removeClass()
+                                .find(':eq(' + index + ')').addClass('active selected');
+
+                            val = currentValue[this.ratio.text];
+
+                            edit.val(val);
+
+                            this.$emit('onSelect', currentValue, true);
+                        }
+                    }
+                }, this);
+
+                if (this.c_multiple) {
+                    this.$emit('onSelect', selobj, true);
+                    this.reinitSelect();
+                }
+            },
+
             c_ratioProp(){
                 let ratioObj = {};
 
@@ -83,59 +191,62 @@ matcss_select.vue
 
                 return $.extend({ text: 'text', icon: 'icon' }, ratioObj);
             },
-            id_disabled(item){
-                if (item.disabled == undefined)
-                    return false;
 
-                return typeof item.disabled === 'boolean'? item.disabled: item.disabled == 1? true: false
+            getMultiselected(is_prog){
+                const selids = [];
+                const selobj = [];
+
+                const _this = this;
+
+
+                this.selectDOM.prev().children('.active').each(function(index, element) {
+                    let idx = $(element).index();
+                    selids.push(parseInt(_this.items[idx].id));
+                    selobj.push(_this.items[idx]);
+                });
+
+                this.curSelId = JSON.stringify(selids);
+
+                this.$emit('update:selectedId', selids);
+                this.$emit('onSelect', selobj, is_prog);
             },
 
-            initItems(){
-                if (this.items == undefined) {
-                    this.items_c = [];
-                    return;
-                }
-
-                const pre_item = [
-                    {id: this.noSelectedId, text: 'Выберите значение из списка', disabled: true}
-                ];
-
-                this.items_c = pre_item.concat(this.items);
-            },
             reinitSelect(){
-                if (this.changeItems) {
+                this.selectDOM.material_select('destroy');
+                this.selectDOM.material_select();
 
-                    this.changeItems = false;
-                    this.selectDOM.material_select();
+                const _this = this;
 
-                    const _this = this;
+                this.selectDOM.prev().children().click(function () {
 
-                    this.selectDOM.prev().children().click(function () {
-                        if ($(this).hasClass('disabled'))
+                    if ($(this).hasClass('disabled'))
+                        return;
+
+                    if (_this.c_multiple) {
+                        _this.getMultiselected(false);
+                    } else {
+                        let _curSelObj = _this.items[$(this).index()];
+
+                        if (_this.curSelId == _curSelObj.id)
                             return;
 
-                        let idx = $(this).index();
+                        _this.curSelId = _curSelObj.id;
 
-                        if (_this.curSelectIndex == idx)
-                            return;
-
-                        _this.curSelectIndex = idx;
-
-                        if (_this.curSelectIndex == 0)
-                            return;
-
-                        _this.$emit('update:selectedId', _this.items_c[_this.curSelectIndex].id);
-                        _this.$emit('onSelect', _this.items_c[_this.curSelectIndex], false);
-                    });
-
-                    this.isInit = true
-                }
+                        _this.$emit('update:selectedId', _this.curSelId);
+                        _this.$emit('onSelect', _curSelObj, false);
+                    }
+                });
             }
         },
         mounted(){
             this.selectDOM = $(this.$el).find('select');
-            this.changeItems = true;
             this.reinitSelect();
         }
     }
 </script>
+
+<style scoped>
+    .input-field >>> .dropdown-content li > span > label {
+        top: -11px;
+    }
+</style>
