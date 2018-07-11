@@ -20,12 +20,15 @@ matcss_modal.vue
     import {is_bool} from 'materializecss-vuejs-component';
 
     export default {
-        props: ['caption', 'buttonCancel', 'buttonOk', 'show'],
+        props: ['caption', 'buttonCancel', 'buttonOk', 'show', 'dismissible'],
         name: 'matcss_modal',
         computed: {
             c_show(){
                 return is_bool(this.show);
             },
+            c_dismissible(){
+                return is_bool(this.dismissible);
+            }
         },
         methods:{
             setShow(val){
@@ -49,7 +52,9 @@ matcss_modal.vue
             this.mod.modal({
                 complete: function() {
                     _this.$emit('update:show', false);
-                } // Callback for Modal close
+
+                }, // Callback for Modal close
+                dismissible: _this.dismissible === undefined? true: _this.c_dismissible
             });
 
             this.setShow(this.show);
