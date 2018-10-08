@@ -3,12 +3,14 @@ Created by Roman on 20.09.2017.
 matcss_switch.vue
 
 <template lang="pug">
-    .switch
-        label
-            | {{ labelOff }}
-            input(type='checkbox', :checked="checkedDOM", :disabled="c_readonly")
-            span.lever
-            | {{ labelOn }}
+    div
+        label {{ name }}
+        .switch(style="margin-top: 8px;")
+            label
+                span.text(:class="{'teal-text': !checkedDOM}") {{ labelOff }}
+                input(type='checkbox', :checked="checkedDOM", :disabled="c_readonly")
+                span.lever
+                span.text(:class="{'teal-text': checkedDOM}") {{ labelOn }}
 </template>
 
 <script>
@@ -16,7 +18,7 @@ matcss_switch.vue
 
     export default {
         name: 'matcss_switch',
-        props: ['labelOff', 'labelOn', 'checked', 'readonly'],
+        props: ['name', 'labelOff', 'labelOn', 'checked', 'readonly'],
         data () {
             return {
                 elInp: undefined,
@@ -57,3 +59,9 @@ matcss_switch.vue
         }
     }
 </script>
+<style scoped>
+    .switch .text {
+        font-size: 1.2em;
+        color: #000000eb;
+    }
+</style>
