@@ -13,7 +13,8 @@ matcss_dropdownButton.vue
         @onSelect="onSelect",
         :selected-id="selectedId",
         :aclass="aclass == undefined? '': aclass",
-        :ratio-prop="ratio"
+        :ratio-prop="ratio",
+        :tooltipped="tooltipped"
         )
 
 </template>
@@ -22,7 +23,7 @@ matcss_dropdownButton.vue
     import MList from './matcss_list.vue';
 
     export default {
-        props: ['items', 'name', 'selectedId', 'aclass', 'icon', 'iconClass', 'ratioProp'],
+        props: ['items', 'name', 'selectedId', 'aclass', 'icon', 'iconClass', 'ratioProp', 'tooltipped'],
         name: 'matcss_dropdownButton',
         data () {
             return {

@@ -51,7 +51,9 @@ matcss_input.vue
             'isTextarea',
             'placeholder',
             'numeric',
-            'autocomplete'
+            'autocomplete',
+            'checkValidation',
+            'positive'
         ],
         name: 'matcss_input',
         data () {
@@ -89,6 +91,11 @@ matcss_input.vue
         watch:{
             isValid(val){
                 this.informValidation(val);
+            },
+            checkValidation(val) { // принудительная валидация, инициализируемая родителем
+                if ((val == 0) && (this.val == undefined || this.val == ''))
+                    this.informValidation(val);
+                this.$emit('checkValidation:update', 1);
             }
         },
         methods: {
@@ -108,7 +115,10 @@ matcss_input.vue
                     this.$emit('update:isValid', result);
                 }
 
-                this.$emit('update:val', val);
+                if (this.numeric && this.positive) {
+                    this.$emit('update:val', Math.abs(val));
+                } else
+                    this.$emit('update:val', val);
             },
 
             informValidation(val){
@@ -144,12 +154,7 @@ matcss_input.vue
                     if ((e.which == 32) || (e.which == 37) || (e.which == 38) || (e.which == 39) || (e.which == 40) || (e.which == 46) ||
                         (e.which ==  9) || (e.which ==  8) || (e.which == 35) || (e.which ==  36) || (e.which == 13)) ret = true;
                     else
-                        if (((e.which > 47) && (e.which < 58))) {
-                            ret = true
-                        }	else {
-                            ret = false;
-                        }
-
+                        ret = ((e.which > 47) && (e.which < 58));
 
                 var val = $(this).val();
 

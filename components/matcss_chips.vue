@@ -35,6 +35,8 @@ matcss_chips.vue
                 });
 
                 this.chp.on('chip.delete', function(e, chip){
+                    if (!confirm("Delete object?"))
+                        _this.setData(_this.val);
                     _this.OnUpdate();
                 });
             })

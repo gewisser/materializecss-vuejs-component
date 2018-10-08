@@ -20,6 +20,10 @@ export function get_obj(val, ext) {
         return obj;
 }
 
+export function get_arr(val) {
+    return typeof val === 'string'? new Function('', 'return '+val)(): val;
+}
+
 
 /**
  * Returns a string from the 'idsName' keys separated by a comma with the value of the key 'conditionKey' equals 'conditionVal'

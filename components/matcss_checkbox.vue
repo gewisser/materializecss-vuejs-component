@@ -20,6 +20,23 @@ matcss_checkbox.vue
                 checkedIsBool: false
             }
         },
+        watch: {
+            checked(newVal){
+                let mod_newVal = this.getBoolVal(newVal);
+
+                this.$emit('update:indeterminate', false);
+
+                let color = is_bool(newVal)? 'inherit': '';
+                this.elInp.next().css("color", color);
+
+                if (this.getBoolVal(this.elInp.prop('checked')) != mod_newVal)
+                    this.$emit('update:checked', mod_newVal);
+            },
+            indeterminate(val) {
+                this.elInp[0].indeterminate = is_bool(val);
+            }
+        },
+
         mounted () {
             const _this = this;
             this.elInp = $(this.$el).find('input').click(function(){ // событие onClick или onChange не работают, пришлось использовать события jquery
@@ -38,26 +55,18 @@ matcss_checkbox.vue
                 return is_bool(this.readonly);
             }
         },
-        watch: {
-            checked(newVal){
-                let mod_newVal = this.getBoolVal(newVal);
-
-                this.$emit('update:indeterminate', false);
-
-                if (this.getBoolVal(this.elInp.prop('checked')) != mod_newVal)
-                    this.$emit('update:checked', mod_newVal);
-            },
-            indeterminate(val) {
-                this.elInp[0].indeterminate = is_bool(val);
-            }
-        },
         created(){
             this.GUIDID = Materialize.guid();
         },
         methods: {
             getBoolVal(boolVal){
                 return typeof boolVal !== 'boolean'? boolVal: this.checkedIsBool? boolVal: boolVal? 1:0;
-            }
+            },
         }
     }
 </script>
+<style scoped>
+    [type="checkbox"] + label {
+        height: inherit !important;
+    }
+</style>

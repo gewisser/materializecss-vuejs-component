@@ -6,17 +6,21 @@ matcss_collections.vue
     div
         .center-align.nodata.grey-text.text-lighten-1(v-if="items.length == 0")
             slot(name="clear")
-                span Список пуст
+                span The list is empty :(
         ul.collection(v-if="items.length > 0", @contextmenu="cm($event)")
-            li.collection-item(v-for="item in items", @dblclick="itemdblClick(item, $event)", @click="OnLiClick(item, $event)", :class="li_class(item)")
-                img.circle(v-if="c_avatarMode", :src="item[ratio.photo] !== undefined? item[ratio.photo]: '/avatar_2x.png'", alt='')
-                span.title {{ item[ratio.title] }}
-                br(v-if="item[ratio.line1] != undefined && item[ratio.line1] != '' && !c_avatarMode")
-                span.line1(v-if="item[ratio.line1] != undefined && item[ratio.line1] != '' && !c_avatarMode" ) {{ item[ratio.line1] }}
-                br(v-if="item[ratio.line2] != undefined && item[ratio.line2] != '' && !c_avatarMode")
-                span.line2(v-if="item[ratio.line2] != undefined && item[ratio.line2] != '' && !c_avatarMode" ) {{ item[ratio.line2] }}
-                p.line1(v-if="item[ratio.line1] != undefined && item[ratio.line1] != '' && c_avatarMode") {{ item[ratio.line1] }}
-                p.line2(v-if="item[ratio.line2] != undefined && item[ratio.line2] != '' && c_avatarMode") {{ item[ratio.line2] }}
+            li.collection-item(v-for="item in items", @dblclick="itemdblClick(item, $event)", @click="OnLiClick(item, $event)", :class="li_class(item)", :key="item.id")
+                slot(name="item", :item="item")
+                    i.circle.material-icons(v-if="c_avatarMode && c_materialIcons") {{ item[ratio.photo] !== undefined? item[ratio.photo]: 'account_circle' }}
+                    img.circle(v-if="c_avatarMode && !c_materialIcons", :src="item[ratio.photo] !== undefined? item[ratio.photo]: '/avatar_2x.png'", alt='')
+                    p.title.truncate(:class="{single: !c_avatarMode}") {{ item[ratio.title] }}
+
+                    //br(v-if="item[ratio.line1] != undefined && item[ratio.line1] != '' && !c_avatarMode")
+                    span.line1.line(v-if="item[ratio.line1] != undefined && item[ratio.line1] != '' && !c_avatarMode" ) {{ item[ratio.line1] }}
+                    br(v-if="item[ratio.line2] != undefined && item[ratio.line2] != '' && !c_avatarMode")
+                    span.line2.line(v-if="item[ratio.line2] != undefined && item[ratio.line2] != '' && !c_avatarMode" ) {{ item[ratio.line2] }}
+
+                    p.line1.line(v-if="item[ratio.line1] != undefined && item[ratio.line1] != '' && c_avatarMode") {{ item[ratio.line1] }}
+                    p.line2.line(v-if="item[ratio.line2] != undefined && item[ratio.line2] != '' && c_avatarMode") {{ item[ratio.line2] }}
                 .secondary-content(:id="item.id", @click="OnClick(item, $event)", :style="c_scStyle")
                     slot(name="secondary", :item="item")
 
@@ -28,7 +32,7 @@ matcss_collections.vue
     import './../images/avatar_2x.png';
 
     export default {
-        props: ['items', 'scStyle', 'ratioProp', 'avatarMode', 'selectedMode', 'multiselect', 'selectedId'],
+        props: ['items', 'scStyle', 'ratioProp', 'avatarMode', 'selectedMode', 'multiselect', 'selectedId', 'materialIcons'],
         name: 'matcss_collections',
         data(){
             return {
@@ -68,6 +72,9 @@ matcss_collections.vue
 
                 return style;
             },
+            c_materialIcons(){
+                return is_bool(this.materialIcons);
+            },
             c_avatarMode(){
                 return is_bool(this.avatarMode);
             },
@@ -79,6 +86,9 @@ matcss_collections.vue
             }
         },
         methods:{
+            is_touch_device() {
+                return (('ontouchstart' in window) || (navigator.MaxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0));
+            },
             JQcollection(){
                 if (this._JQcollection == undefined) {
                     let JQcollection = $(this.$el).find('ul.collection');
@@ -101,7 +111,11 @@ matcss_collections.vue
                         this.JQcollection().children(':eq(' + i + ')').addClass('active');
                 }
             },
-            OnLiClick(item, event){
+            OnLiClick(item, event) {
+                if (this.is_touch_device()) {
+                    this.itemdblClick(item, event);
+                    return;
+                }
                 this.$emit('onItemClick', item, event);
 
                 if (!this.c_selectedMode)
@@ -170,3 +184,19 @@ matcss_collections.vue
         }
     }
 </script>
+<style>
+    .collection .collection-item .title {
+        padding-bottom: 8px;
+        width: 80%;
+    }
+
+    .collection .collection-item .line {
+        font-size: 0.95em;
+    }
+
+    .collection .collection-item .single {
+        padding-bottom: 0 !important;
+        margin: 6px 0;
+    }
+
+</style>
