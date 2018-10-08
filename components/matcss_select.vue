@@ -5,70 +5,63 @@ matcss_select.vue
 <template lang="pug">
     .input-field
         select(:class="iconsClass !== undefined? 'icons':''", :disabled="c_readonly", :multiple="c_multiple")
-            option(
-            v-for="item in items",
-            :value="item.id",
-            :data-icon="item[ratio.icon] !== undefined? item[ratio.icon]: false",
-            :class="iconsClass !== undefined? iconsClass: false",
-            :disabled="id_disabled(item)",
-            :selected="getSelection(item)",
-            :key="item.id"
-            ) {{ item[ratio.text] == undefined? item.text: item[ratio.text] }}
-        label {{ name }}
+            optgroup(v-if="c_optgroup", v-for="item_group in items", :label="item_group[ratio.group_caption]")
+                option(
+                    v-for="item in item_group.items",
+                    :value="item.id",
+                    :data-icon="item[ratio.icon] !== undefined? item[ratio.icon]: false",
+                    :class="iconsClass !== undefined? iconsClass: false",
+                    :disabled="id_disabled(item)",
+                    :selected="getSelection(item)",
+                    :key="item.id"
+                ) {{ item[ratio.text] == undefined? item.text: item[ratio.text] }}
 
+            option(
+                v-if="!c_optgroup",
+                v-for="item in items",
+                :value="item.id",
+                :data-icon="item[ratio.icon] !== undefined? item[ratio.icon]: false",
+                :class="iconsClass !== undefined? iconsClass: false",
+                :disabled="id_disabled(item)",
+                :selected="getSelection(item)",
+                :key="item.id"
+            ) {{ item[ratio.text] == undefined? item.text: item[ratio.text] }}
+        label(style="font-size: 13px;", :class="c_selectClass") {{ name }}
 </template>
 
 <script>
-    import {is_bool} from 'materializecss-vuejs-component';
+    import {is_bool, get_obj} from 'materializecss-vuejs-component';
 
     export default {
         name: 'matcss_select',
-        props: ['items', 'name', 'selectedId', 'iconsClass', 'multiple', 'ratioProp', 'noSelectedId', 'readonly', 'defMess'],
+        props: ['items', 'validation', 'checkValidation', 'name', 'selectedId', 'iconsClass', 'multiple', 'ratioProp', 'noSelectedId', 'readonly', 'defMess', 'optgroup'],
         data () {
             return {
                 selectDOM: undefined,
-                curSelId: undefined,
-                itemUpd: false,
+                curSelId: this.noSelectedId,
                 cur_items_len: -1,
-                ratio: this.c_ratioProp()
+                ratio: this.c_ratioProp(),
+                c_multiple: is_bool(this.multiple),
+                c_optgroup: is_bool(this.optgroup),
+                
+                selectClass: {
+                    valid: false,
+                    invalid: false
+                }
             }
         },
         created(){
-            this.addFirstItem();
-
-            /***********************************************************************************
-             * Delete after debug!!
-             */
-            const _this = this;
-            bus.$on('matcss_select.vue', function (v) {
-                let run = new Function('ts', v);
-                run(_this);
-            });
-
-            // Вставить в консоль:
-            //bus.$emit('matcss_select.vue', 'console.log(ts.selectDOM)');
-            /**
-             * Delete after debug!!
-             ************************************************************************************/
-
+            //this.addFirstItem();
         },
         computed:{
             c_readonly(){
                 return is_bool(this.readonly);
             },
-            c_multiple(){
-                return is_bool(this.multiple)
+            c_selectClass() {
+                return get_obj(this.addClass, this.selectClass);
             }
         },
         watch: {
-            items(nev){
-                if (this.cur_items_len !== -1 && nev.length !== this.cur_items_len)
-                    this.itemUpd = true;
-
-                this.cur_items_len = nev.length;
-
-                this.addFirstItem();
-            },
             selectedId(val){
                 if (this.c_multiple) {
                     let sf_selectedId = JSON.stringify(val);
@@ -77,28 +70,75 @@ matcss_select.vue
                         return;
 
                     this.curSelId = sf_selectedId;
-
-
                 } else {
+                    let run = new Function('val', 'return '+this.validation);
+
                     if (this.curSelId == val)
                         return;
 
                     this.curSelId = val;
+
+                    this.informValidation(val);
                 }
 
                 this.programmSetSelection();
+            },
+            readonly(val) {
+                this.selectDOM.prev().prev().prop( "disabled", is_bool(val));
+            },
+            checkValidation(val) { // принудительная валидация, инициализируемая родителем
+                let run = new Function('val', 'return '+this.validation);
+                let result = !run(val) ? 1:0;
+                if (val == 0 && !run(this.curSelId))
+                    this.informValidation(result);
+                this.$emit('checkValidation:update', 1);
             }
         },
         updated: function () {
             this.$nextTick(function () {
-                if (this.itemUpd) {
-                    this.itemUpd = false;
-                    this.reinitSelect();
-                }
+                this.reinitSelect();  // вызывает закрытие селекта при мультивыборе
             })
         },
         methods:{
-            getSelection(item){
+            informValidation(val){
+                switch (val) {
+                    case -1:
+                        this.selectClass.valid = false;
+                        this.selectClass.invalid = false;
+
+                        break;
+                    case 0:
+                        this.selectClass.valid = false;
+                        this.selectClass.invalid = true;
+
+                        break;
+                    case 1:
+                        this.selectClass.valid = true;
+                        this.selectClass.invalid = false;
+
+                        break;
+                }
+            },
+
+            setNoSelected(){
+                const edit = this.selectDOM.prev().prev();
+                edit.css("color", "#9e9e9e");
+                edit.val(this.defMess === undefined? 'Select a value from the list': this.defMess);
+            },
+
+            getLineObj(idx){
+                var counter = 0;
+                for (var i = 0; i < this.items.length; i++) {
+                    for (let y = 0; y < this.items[i].items.length; y++) {
+                        counter++;
+                        if (counter == idx)
+                            return this.items[i].items[y]
+                    }
+                    counter++;
+                }
+            },
+
+            getSelection(item) {
                 if (this.c_multiple) {
                     if (!Array.isArray(this.selectedId)) {
                         console.warn('selected-id must be array in selected mode');
@@ -120,12 +160,12 @@ matcss_select.vue
                 return is_bool(item.disabled);
             },
 
-            addFirstItem(){
+/*            addFirstItem(){
                 if (this.items === undefined || this.items.length > 0 && this.items[0].disabled === true)
                     return;
 
                 this.items.unshift({id: this.noSelectedId, text: this.defMess === undefined? 'Select a value from the list': this.defMess, disabled: true});
-            },
+            },*/
 
             programmSetSelection(){
                 const selobj = [];
@@ -135,14 +175,19 @@ matcss_select.vue
                 edit.val('');
                 var val = '';
 
-                this.items.forEach(function (currentValue, index, array) {
-                    if (this.c_multiple) {
-                        if (!Array.isArray(this.selectedId)) {
-                            console.warn('selected-id must be array in selected mode');
-                            return;
-                        }
+                if (this.c_multiple && this.selectedId.length == 0) {
+                    this.setNoSelected();
+                } else if (this.selectedId == this.noSelectedId) {
+                    this.setNoSelected();
+                }
 
+                if (this.c_multiple) {
+                    if (!Array.isArray(this.selectedId)) {
+                        console.warn('selected-id must be array in selected mode');
+                        return;
+                    }
 
+                    this.items.forEach(function (currentValue, index, array) {
                         const el = this.selectDOM.children().eq(index);
                         el.prop('selected', false);
 
@@ -150,17 +195,36 @@ matcss_select.vue
                             if (currentValue.id == this.selectedId[i]) {
                                 el.prop('selected', true);
                                 selobj.push(currentValue);
-/*                                if (val !== '')
-                                    val += ', ';
-
-                                val += currentValue[this.ratio.text];*/
 
                                 break;
                             }
                         }
 
-                    } else {
+
+                    }, this);
+                } else if (this.c_optgroup) {
+
+                    var counter = 0;
+                    for (var i = 0; i < this.items.length; i++) {
+                        for (let y = 0; y < this.items[i].items.length; y++) {
+                            counter++;
+
+                            if (this.items[i].items[y].id == this.curSelId) {
+
+                                val = this.items[i].items[y][this.ratio.text];
+                                edit.val(val);
+                                edit.css("color", "");
+                                this.$emit('onSelect', this.items[i].items[y], true);
+                                break;
+                            }
+                        }
+                        counter++;
+                    }
+
+                } else {
+                    this.items.forEach(function (currentValue, index, array) {
                         if (currentValue.id == this.curSelId) {
+
                             this.selectDOM.prev().children().not(".disabled")
                                 .removeClass()
                                 .find(':eq(' + index + ')').addClass('active selected');
@@ -168,11 +232,12 @@ matcss_select.vue
                             val = currentValue[this.ratio.text];
 
                             edit.val(val);
-
+                            edit.css("color", "");
                             this.$emit('onSelect', currentValue, true);
                         }
-                    }
-                }, this);
+                    }, this);
+                }
+
 
                 if (this.c_multiple) {
                     this.$emit('onSelect', selobj, true);
@@ -189,7 +254,7 @@ matcss_select.vue
                     else
                         ratioObj = new Function('', 'return '+this.ratioProp)();
 
-                return $.extend({ text: 'text', icon: 'icon' }, ratioObj);
+                return $.extend({ text: 'text', icon: 'icon', group_caption: 'caption'}, ratioObj);
             },
 
             getMultiselected(is_prog){
@@ -205,6 +270,11 @@ matcss_select.vue
                     selobj.push(_this.items[idx]);
                 });
 
+                if (selids.length > 0)
+                    this.selectDOM.prev().prev().css("color", "");
+                else
+                    this.setNoSelected();
+
                 this.curSelId = JSON.stringify(selids);
 
                 this.$emit('update:selectedId', selids);
@@ -217,6 +287,16 @@ matcss_select.vue
 
                 const _this = this;
 
+                let edit = this.selectDOM.prev().prev();
+
+                if (this.c_multiple && this.selectedId.length == 0) {
+                    this.setNoSelected();
+                } else if (this.selectedId == this.noSelectedId) {
+                    this.setNoSelected();
+                }
+
+                edit.prop( "disabled", this.c_readonly);
+
                 this.selectDOM.prev().children().click(function () {
 
                     if ($(this).hasClass('disabled'))
@@ -224,6 +304,18 @@ matcss_select.vue
 
                     if (_this.c_multiple) {
                         _this.getMultiselected(false);
+                    } else if (_this.c_optgroup) {
+                        if ($(this).hasClass('optgroup'))
+                            return;
+
+                        _this.selectDOM.prev().prev().css("color", "");
+
+                        let _curSelObj = _this.getLineObj($(this).index());
+
+                        _this.curSelId = _curSelObj.id;
+
+                        _this.$emit('update:selectedId', _this.curSelId);
+                        _this.$emit('onSelect', _curSelObj, false);
                     } else {
                         let _curSelObj = _this.items[$(this).index()];
 
@@ -231,6 +323,11 @@ matcss_select.vue
                             return;
 
                         _this.curSelId = _curSelObj.id;
+
+
+
+                        _this.selectDOM.prev().prev().css("color", "");
+
 
                         _this.$emit('update:selectedId', _this.curSelId);
                         _this.$emit('onSelect', _curSelObj, false);
@@ -248,5 +345,11 @@ matcss_select.vue
 <style scoped>
     .input-field >>> .dropdown-content li > span > label {
         top: -11px;
+    }
+    .invalid {
+        color: red !important;
+    }
+    .valid {
+        color: green !important;
     }
 </style>
