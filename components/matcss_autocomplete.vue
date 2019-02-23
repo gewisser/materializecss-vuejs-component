@@ -18,17 +18,17 @@ matcss_autocomplete.vue
 </template>
 
 <script>
-    import pix from './../images/pixel.png';
+    import './../images/pixel.gif';
     import {is_bool} from 'materializecss-vuejs-component';
 
     export default {
+        inputElement: undefined,
         props: ['name', 'val', 'url', 'iconPrefix', 'disabled', 'readonly'],
         name: 'matcss_autocomplete',
         data () {
             return {
                 GUIDID: undefined,
                 rawData: [],
-                inputElement: undefined,
                 curInputVal: ''
             }
         },
@@ -59,10 +59,10 @@ matcss_autocomplete.vue
         methods:{
             initVal(val_obj){
                 if (val_obj == undefined) {
-                    this.inputElement.val('');
+                    this.$options.inputElement.val('');
                     this.curInputVal = '';
                 } else if (val_obj.itemName !== undefined && val_obj.itemName != this.curInputVal) {
-                    this.inputElement.val(val_obj.itemName);
+                    this.$options.inputElement.val(val_obj.itemName);
                     this.curInputVal = val_obj.itemName;
                 }
             },
@@ -74,8 +74,7 @@ matcss_autocomplete.vue
             },
         },
         mounted(){
-            this.inputElement = $(this.$el).find('input');
-
+            this.$options.inputElement = $(this.$el).find('#'+this.GUIDID);
             const _this = this;
 
             var timeout_id = undefined;
@@ -85,14 +84,14 @@ matcss_autocomplete.vue
             }; // if data is empty {}, it won't work.
 
 
-            this.inputElement.autocomplete({
+            this.$options.inputElement.autocomplete({
                 data: adata,
                 limit: 20, // The max amount of results that can be shown at once. Default: Infinity.
                 onAutocomplete: function(val) {
                     _this.curInputVal = val;
 
                     for (let i = _this.rawData.length - 1; i >= 0; i--) {
-                        if (_this.rawData[i].id !== $(this).find('img').attr('data-id'))
+                        if (_this.rawData[i].id != $(this).find('img').attr('data-id'))
                             _this.rawData.splice(i, 1);
                     }
 
@@ -134,7 +133,7 @@ matcss_autocomplete.vue
 
                         response.body.list.forEach(function callback(currentValue, index, array) {
                             let item = {};
-                            item[currentValue.itemName] = 'pixel.png" data-id="'+currentValue.id;
+                            item[currentValue.itemName] = '/pixel.gif" data-id="'+currentValue.id;
 
                             $.extend(adata, item)
                         });

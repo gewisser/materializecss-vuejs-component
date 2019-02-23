@@ -44,6 +44,8 @@ matcss_switch.vue
 
                 if (this.getBoolVal(this.elInp.prop('checked')) != mod_newVal)
                     this.$emit('update:checked', mod_newVal);
+
+                this.$emit('update');
             }
         },
         mounted () {

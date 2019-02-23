@@ -3,8 +3,9 @@ Created by Roman on 18.08.2017.
 matcss_input.vue
 
 <template lang="pug">
-    .input-field
-        i.material-icons.prefix(v-if="iconPrefix !== undefined") {{ iconPrefix }}
+    .input-field(:class="ifclass")
+        i.material-icons.prefix(v-if="iconPrefix", data-position="bottom", :data-tooltip="tooltip", :class="{tooltipped: tooltip}") {{ iconPrefix }}
+
         input(
             v-if="!showTextarea",
             :id="GUIDID",
@@ -15,7 +16,9 @@ matcss_input.vue
             :disabled="c_disabled",
             :readonly="c_readonly",
             :placeholder="placeholder",
-            :autocomplete="autocomplete === undefined? false: autocomplete"
+            :autocomplete="autocomplete === undefined? false: autocomplete",
+            @focus="focused = true",
+            @blur="focused = false"
         )
 
         textarea.materialize-textarea(
@@ -29,14 +32,22 @@ matcss_input.vue
             :placeholder="placeholder"
         )
 
-        label(style="width: 100%;", :for='GUIDID', :class="{ active: textExist}", :data-error="dataError", :data-success="dataSuccess") {{ name }}
+
+        label.inner-icon.prepend-inner-icon(v-if="prependInnerIcon", :for="GUIDID", @click="onIconClick(prependInnerIcon)")
+            i.material-icons {{ prependInnerIcon }}
+        label.inner-icon.append-inner-icon(v-if="appendInnerIcon", :for="GUIDID", @click="onIconClick(appendInnerIcon)")
+            i.material-icons {{ appendInnerIcon }}
+
+        label(v-if="!borderStyle", style="width: 100%;", :for='GUIDID', :class="{ active: textExist}", :data-error="dataError", :data-success="dataSuccess") {{ name }}
 </template>
 
 <script>
     import {is_bool, get_obj} from 'materializecss-vuejs-component';
 
     export default {
+        input: undefined,
         props: [
+            'tooltip',
             'name',
             'val',
             'type',
@@ -53,7 +64,11 @@ matcss_input.vue
             'numeric',
             'autocomplete',
             'checkValidation',
-            'positive'
+            'positive',
+            'borderStyle',
+            'prependInnerIcon',
+            'appendInnerIcon',
+            'clearOnEnter'
         ],
         name: 'matcss_input',
         data () {
@@ -62,12 +77,23 @@ matcss_input.vue
                 inputClass: {
                     valid: false,
                     invalid: false
-                }
+                },
+                focused: false,
             }
         },
         computed: {
+            ifclass() {
+                return {
+                    'mode-border': this.borderStyle,
+                    'card': this.borderStyle,
+                    'foc': this.focused,
+                    'f-prepend': this.prependInnerIcon,
+                    'f-append': this.appendInnerIcon
+                }
+            },
+
             textExist(){
-                return (this.val !== undefined && this.val !== '') || (this.placeholder !== undefined && this.placeholder !== '');
+                return (this.val && this.val !== '') || (this.placeholder && this.placeholder !== '');
             },
             c_inputClass(){
                 return get_obj(this.addClass, this.inputClass);
@@ -89,16 +115,32 @@ matcss_input.vue
             this.GUIDID = Materialize.guid();
         },
         watch:{
+            val() {
+                if (this.validation != undefined) {
+                    let run = new Function('val', 'return ' + this.validation);
+                    let result = run(this.val) ? 1 : 0;
+
+                    this.informValidation(result);
+                    this.$emit('checkValidation:update', 1);
+                }
+            },
             isValid(val){
                 this.informValidation(val);
             },
             checkValidation(val) { // принудительная валидация, инициализируемая родителем
-                if ((val == 0) && (this.val == undefined || this.val == ''))
-                    this.informValidation(val);
+                let run = new Function('val', 'return '+this.validation);
+                let result = run(this.val)? 1:0;
+
+                if (val == 0)
+                    this.informValidation(result);
                 this.$emit('checkValidation:update', 1);
             }
         },
         methods: {
+            onIconClick(iconName){
+                this.$emit('onIconClick', iconName);
+            },
+
             onChange() {
                 let el ='input';
                 el = this.showTextarea? 'textarea': el;
@@ -147,7 +189,7 @@ matcss_input.vue
             let el ='input';
             el = this.showTextarea? 'textarea': el;
 
-            this.input = $(this.$el).find(el).keypress(function (e) {
+            this.$options.input = $(this.$el).find(el).keypress(function (e) {
                 let ret = true;
 
                 if (_this.is_numeric)
@@ -158,14 +200,58 @@ matcss_input.vue
 
                 var val = $(this).val();
 
-                if (e.which == 13 && val && val != '') {
-                    _this.UpdateVal(val);
+                if (e.which == 13 && val) {
+                    if (_this.clearOnEnter)
+                        $(this).val('');
+                    else
+                        _this.UpdateVal(val);
+    
                     _this.$emit('onEnter', val);
                 }
 
                 return ret;
             });
 
+            if (this.iconPrefix && this.tooltip)
+                $(this.$el).find('.tooltipped').tooltip();
         }
     }
 </script>
+<style scoped lang="sass">
+    .input-field > .material-icons.tooltipped
+        cursor: pointer
+
+    .mode-border
+        &.f-prepend
+            padding-left: 40px
+        &.f-append
+            padding-right: 40px
+        input
+            margin-bottom: 0
+            border-bottom: 0 !important
+            box-shadow: none !important
+            width: 100%
+        margin-left: 2px
+        margin-right: 2px
+        transition: .2s
+        padding: 0 8px
+        height: 3rem
+        &.foc
+            margin-left: 0
+            margin-right: 0
+
+    .inner-icon
+        -webkit-transform: unset !important
+        transform: unset !important
+        top: 10px
+        cursor: pointer !important
+        pointer-events: unset !important
+
+    .mode-border
+        .prepend-inner-icon
+            left: 10px !important
+        .append-inner-icon
+            right: 10px !important
+            left: auto !important
+
+</style>

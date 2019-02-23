@@ -4,7 +4,7 @@ matcss_datepicker.vue
 
 <template lang="pug">
     .input-field
-        i.material-icons.prefix(v-if="iconPrefix !== undefined", :class="{'red-text' : dateClass.redtext}") {{ iconPrefix }}
+        i.material-icons.prefix(v-if="iconPrefix !== undefined", :class="{'red-text' : dateClass.redtext, 'grey-text': c_disabled}") {{ iconPrefix }}
         input.datepicker(type='text', :id="GUIDID", :class="c_class", :disabled="c_disabled")
         label(style="width: 100%;", :for='GUIDID', :class="{active: textExist}") {{ name }}
 </template>
@@ -33,10 +33,10 @@ matcss_datepicker.vue
 
     export default {
         name: 'matcss_datepicker',
-        props: ['val', 'checkValidation', 'forbiddenDaysOfWeek', 'minDate_str', 'maxDate_str', 'placeholder', 'name', 'iconPrefix', 'inputClass', 'disabled'],
+        props: ['container', 'val', 'checkValidation', 'forbiddenDaysOfWeek', 'minDate_str', 'maxDate_str', 'placeholder', 'name', 'iconPrefix', 'inputClass', 'disabled'],
         data() {
             return {
-                GUIDID: undefined,
+                GUIDID:  Materialize.guid(),
                 minDate: new Date(this.minDate_str),
                 maxDate: new Date(this.maxDate_str),
                 dateClass: {
@@ -65,9 +65,6 @@ matcss_datepicker.vue
                     this.informValidation(val);
                 this.$emit('checkValidation:update', 1);
             }
-        },
-        created(){
-            this.GUIDID = Materialize.guid();
         },
         computed: {
             textExist() {
@@ -110,8 +107,9 @@ matcss_datepicker.vue
                 const _this = this;
 
                 this.datepicker.pickadate({
+                    container: document.getElementById(_this.container),
                     selectMonths: true, // Creates a dropdown to control month
-                    selectYears: 15, // Creates a dropdown of 15 years to control year,
+                    selectYears: 150, // Creates a dropdown of 15 years to control year,
 
                     closeOnSelect: false, // Close upon selecting a date,
 
@@ -121,10 +119,10 @@ matcss_datepicker.vue
 
                         if (_this.minDate !== undefined)
                             outOfRangeMinus =
-                                _this.minDate > new Date(this.get('select', 'yyyy-mm-dd'));
+                                _this.minDate - 1 > new Date(this.get('select', 'yyyy-mm-dd'));
                         if (_this.maxDate !== undefined)
                             outOfRangePlus =
-                                _this.maxDate < new Date(this.get('select', 'yyyy-mm-dd'));
+                                _this.maxDate + 1 < new Date(this.get('select', 'yyyy-mm-dd'));
 
                         if (!outOfRangeMinus && !outOfRangePlus)
                             _this.$emit('update:val', this.get('select', 'yyyy-mm-dd'));

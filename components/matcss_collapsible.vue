@@ -7,18 +7,18 @@ matcss_collapsible.vue
         .center-align.nodata.grey-text.text-lighten-1(v-if="items.length == 0")
             slot(name="clear")
                 span This list is empty :(
-        ul(:class="cclass !== undefined? cclass: ''")
-            li(v-for="(item, index) in items", :id="item.id")
+        ul(:class="cclass !== undefined? cclass: ''", :data-collapsible="dataCollapsible")
+            li(v-for="(item, index) in items", :id="item.id", :key="item.id")
                 .collapsible-header(@click="OnClick(item, $event)")
                     slot(name="header", :item="item")
                 .collapsible-body(@click="OnClick(item, $event)")
-                        slot(name="body", :item="item" :index="index")
+                    slot(name="body", :item="item" :index="index")
 
 </template>
 
 <script>
     export default {
-        props: ['items', 'cclass'],
+        props: ['items', 'cclass', 'dataCollapsible'],
         name: 'matcss_collapsible',
         methods:{
             OnClick(item, event) {
@@ -41,6 +41,8 @@ matcss_collapsible.vue
             }
         },
         mounted(){
+            //console.log('с - init'); ??
+
             this.collapsbl = $(this.$el).children('ul');
 
             this.collapsbl.collapsible({
@@ -56,3 +58,14 @@ matcss_collapsible.vue
 
     }
 </script>
+
+<style scoped>
+    @media only screen and (max-width: 800px) {
+        ul li {
+            margin: 0 !important;
+        }
+        ul li .collapsible-body {
+            padding: 10px;
+        }
+    }
+</style>

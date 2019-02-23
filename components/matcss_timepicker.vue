@@ -3,40 +3,68 @@ Created by Roman on 31.01.2018.
 matcss_timepicker.vue
 
 <template lang="pug">
-    input.timepicker(
-        type='text',
-        @change="onChange",
-        :value="val"
-    )
+    .input-field
+        i.material-icons.prefix(v-if="iconPrefix", :class="{'grey-text': c_disabled}") {{ iconPrefix }}
+        input.timepicker(
+            :id="GUIDID",
+            type='text',
+            @change="onChange",
+            :value="value",
+            :class="inputClass",
+            :disabled="c_disabled"
+        )
+        label(v-if="name", style="width: 100%;", :for='GUIDID', :class="{active: textExist}") {{ name }}
 </template>
 
 <script>
+    import {is_bool} from 'materializecss-vuejs-component';
+
     export default {
+        timepicker: undefined,
         name: 'matcss_timepicker',
-        props: ['default', 'val'],
+        props: {
+            value: {type: String, default: undefined },
+            name: {type: String, default: false },
+            default:{ type: String, default: 'now'},
+            twelvehour:{ type: Boolean, default: false},
+            donetext:{ type: String, default: 'OK'},
+            cleartext:{ type: String, default: 'Clear'},
+            canceltext:{ type: String, default: 'Cancel'},
+            autoclose:{ type: Boolean, default: false},
+            ampmclickable:{ type: Boolean, default: true},
+            iconPrefix: {type: String, default: false},
+            inputClass: {default: false},
+            disabled: {default: false}
+        },
         data() {
             return {
-
+                GUIDID:  Materialize.guid(),
+            }
+        },
+        computed: {
+            textExist() {
+                return (this.value !== undefined && this.value !== '');
+            },
+            c_disabled(){
+                return is_bool(this.disabled)
             }
         },
         mounted () {
             this.$nextTick(function () {
-                this.timepicker = $(this.$el);
+                this.$options.timepicker = $(this.$el).find('input');
 
-                const _this = this;
-                this.timepicker.change(function () {
-                    _this.$emit('update:val', _this.timepicker.val());
-                });
+                this.$options.timepicker.change(() => {this.onChange()});
 
-                this.timepicker.pickatime({
+
+                this.$options.timepicker.pickatime({
                     default: this.default, // Set default time: 'now', '1:30AM', '16:30'
                     fromnow: 0,       // set default time to * milliseconds from now (using with default = 'now')
-                    twelvehour: false, // Use AM/PM or 24-hour format
-                    donetext: 'OK', // text for done-button
-                    cleartext: 'Очистить', // text for clear-button
-                    canceltext: 'Отмена', // Text for cancel-button
-                    autoclose: false, // automatic close timepicker
-                    ampmclickable: true, // make AM PM clickable
+                    twelvehour: this.twelvehour, // Use AM/PM or 24-hour format
+                    donetext: this.donetext, // text for done-button
+                    cleartext: this.cleartext, // text for clear-button
+                    canceltext: this.canceltext, // Text for cancel-button
+                    autoclose: this.autoclose, // automatic close timepicker
+                    ampmclickable: this.ampmclickable, // make AM PM clickable
                     aftershow() {
 
                     } //Function for after opening timepicker
@@ -45,7 +73,7 @@ matcss_timepicker.vue
         },
         methods: {
             onChange(){
-                this.$emit('update:val', this.timepicker.val());
+                this.$emit('input', this.$options.timepicker.val());
             }
         }
     }

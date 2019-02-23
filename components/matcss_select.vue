@@ -33,11 +33,25 @@ matcss_select.vue
     import {is_bool, get_obj} from 'materializecss-vuejs-component';
 
     export default {
+        selectDOM: undefined,
         name: 'matcss_select',
-        props: ['items', 'validation', 'checkValidation', 'name', 'selectedId', 'iconsClass', 'multiple', 'ratioProp', 'noSelectedId', 'readonly', 'defMess', 'optgroup'],
+        props: [
+            'items',
+            'validation',
+            'checkValidation',
+            'name',
+            'selectedId',
+            'iconsClass',
+            'multiple',
+            'ratioProp',
+            'noSelectedId',
+            'readonly',
+            'defMess',
+            'optgroup',
+            'inputClass'
+        ],
         data () {
             return {
-                selectDOM: undefined,
                 curSelId: this.noSelectedId,
                 cur_items_len: -1,
                 ratio: this.c_ratioProp(),
@@ -73,18 +87,17 @@ matcss_select.vue
                 } else {
                     let run = new Function('val', 'return '+this.validation);
 
-                    if (this.curSelId == val)
-                        return;
-
                     this.curSelId = val;
 
-                    this.informValidation(val);
+                    let result = (run(val)) ? 1:0;
+                    if (run(val))
+                        this.informValidation(result)
                 }
 
                 this.programmSetSelection();
             },
             readonly(val) {
-                this.selectDOM.prev().prev().prop( "disabled", is_bool(val));
+                this.$options.selectDOM.prev().prev().prop( "disabled", is_bool(val));
             },
             checkValidation(val) { // принудительная валидация, инициализируемая родителем
                 let run = new Function('val', 'return '+this.validation);
@@ -121,7 +134,7 @@ matcss_select.vue
             },
 
             setNoSelected(){
-                const edit = this.selectDOM.prev().prev();
+                const edit = this.$options.selectDOM.prev().prev();
                 edit.css("color", "#9e9e9e");
                 edit.val(this.defMess === undefined? 'Select a value from the list': this.defMess);
             },
@@ -169,8 +182,7 @@ matcss_select.vue
 
             programmSetSelection(){
                 const selobj = [];
-                const edit = this.selectDOM.prev().prev();
-
+                const edit = this.$options.selectDOM.prev().prev();
 
                 edit.val('');
                 var val = '';
@@ -188,7 +200,7 @@ matcss_select.vue
                     }
 
                     this.items.forEach(function (currentValue, index, array) {
-                        const el = this.selectDOM.children().eq(index);
+                        const el = this.$options.selectDOM.children().eq(index);
                         el.prop('selected', false);
 
                         for (let i = 0; i < this.selectedId.length; i++) {
@@ -225,7 +237,7 @@ matcss_select.vue
                     this.items.forEach(function (currentValue, index, array) {
                         if (currentValue.id == this.curSelId) {
 
-                            this.selectDOM.prev().children().not(".disabled")
+                            this.$options.selectDOM.prev().children().not(".disabled")
                                 .removeClass()
                                 .find(':eq(' + index + ')').addClass('active selected');
 
@@ -264,14 +276,14 @@ matcss_select.vue
                 const _this = this;
 
 
-                this.selectDOM.prev().children('.active').each(function(index, element) {
+                this.$options.selectDOM.prev().children('.active').each(function(index, element) {
                     let idx = $(element).index();
                     selids.push(parseInt(_this.items[idx].id));
                     selobj.push(_this.items[idx]);
                 });
 
                 if (selids.length > 0)
-                    this.selectDOM.prev().prev().css("color", "");
+                    this.$options.selectDOM.prev().prev().css("color", "");
                 else
                     this.setNoSelected();
 
@@ -282,12 +294,15 @@ matcss_select.vue
             },
 
             reinitSelect(){
-                this.selectDOM.material_select('destroy');
-                this.selectDOM.material_select();
+                this.$options.selectDOM.material_select('destroy');
+                this.$options.selectDOM.material_select();
 
                 const _this = this;
 
-                let edit = this.selectDOM.prev().prev();
+                let edit = this.$options.selectDOM.prev().prev();
+
+                if (this.inputClass)
+                    edit.addClass(this.inputClass);
 
                 if (this.c_multiple && this.selectedId.length == 0) {
                     this.setNoSelected();
@@ -297,7 +312,7 @@ matcss_select.vue
 
                 edit.prop( "disabled", this.c_readonly);
 
-                this.selectDOM.prev().children().click(function () {
+                this.$options.selectDOM.prev().children().click(function () {
 
                     if ($(this).hasClass('disabled'))
                         return;
@@ -308,7 +323,7 @@ matcss_select.vue
                         if ($(this).hasClass('optgroup'))
                             return;
 
-                        _this.selectDOM.prev().prev().css("color", "");
+                        _this.$options.selectDOM.prev().prev().css("color", "");
 
                         let _curSelObj = _this.getLineObj($(this).index());
 
@@ -326,7 +341,7 @@ matcss_select.vue
 
 
 
-                        _this.selectDOM.prev().prev().css("color", "");
+                        _this.$options.selectDOM.prev().prev().css("color", "");
 
 
                         _this.$emit('update:selectedId', _this.curSelId);
@@ -336,7 +351,7 @@ matcss_select.vue
             }
         },
         mounted(){
-            this.selectDOM = $(this.$el).find('select');
+            this.$options.selectDOM = $(this.$el).find('select');
             this.reinitSelect();
         }
     }

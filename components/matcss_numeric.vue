@@ -4,7 +4,7 @@ matcss_numeric.vue
 
 <template lang="pug">
     span
-        a.btn.btn-floating.waves-effect.waves-light(:class="{disabled: c_disabled || c_readonly}", style="margin-left: 12px;", @click="c_val = c_val - 1")
+        a.btn.btn-floating.waves-effect.waves-light(:class="{disabled: c_disabled || c_readonly}", style="margin-left: 12px;", @click="c_val = c_val - (step != undefined ? parseInt(step) : 1)")
             i.material-icons remove
         m-input-internal.inline(
         :style="inputStyle",
@@ -20,7 +20,7 @@ matcss_numeric.vue
         :placeholder="placeholder",
         numeric="true"
         )
-        a.btn.btn-floating.waves-effect.waves-light(:class="{disabled: c_disabled || c_readonly}", style="margin-left: 5px;", @click="c_val = c_val + 1")
+        a.btn.btn-floating.waves-effect.waves-light(:class="{disabled: c_disabled || c_readonly}", style="margin-left: 5px;", @click="c_val = c_val + (step != undefined ? parseInt(step) : 1)")
             i.material-icons add
 </template>
 
@@ -42,7 +42,8 @@ matcss_numeric.vue
             'inputStyle',
             'readonly',
             'min',
-            'max'
+            'max',
+            'step'
         ],
         name: 'matcss_numeric',
         data() {

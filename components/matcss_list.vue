@@ -5,9 +5,9 @@ matcss_list.vue
 <template lang="pug">
     div(v-callout="true")
         ul.dropdown-content(:id="id")
-            li(v-for="item in items", :class="item[ratio.text] == '-'?'divider': ''", @click="OnClick(item)")
+            li(v-for="item in items", :class="item[ratio.text] == '-'?'divider': ''", @click="OnClick(item, true)")
                 slot(:item="item")
-                    a.tooltipped.t2(
+                    a.tooltipped(
                         v-if="tooltipped",
                         :class="item[ratio._class] == undefined ? aclass: item[ratio._class]",
                         data-delay="200",
@@ -37,8 +37,8 @@ matcss_list.vue
                 }
             }, this);
 
-            if ((obj != undefined) && (obj.label === undefined)) //
-                this.OnClick(obj);
+
+            this.OnClick(obj, false);
         },
         watch:{
             selectedId(val){
@@ -51,15 +51,21 @@ matcss_list.vue
                     }
                 });
 
-                if ((obj !== undefined) && (obj.label === undefined)) //
-                    this.OnClick(obj)
+                if (!obj){
+                    if (this.last_item_click != val) {
+                        this.last_item_click = val
+                    } else return;
+                }
+
+
+                this.OnClick(obj, false)
             },
-            items() {
+        },
+        updated() {
+            this.$nextTick(function () {
                 if (this.tooltipped)
-                    $(document).ready(function(){
-                        $('.tooltipped.t2').tooltip();
-                    });
-            }
+                    $('#'+this.id).find('.tooltipped').tooltip();
+            })
         },
         methods: {
             c_ratioProp(){
@@ -73,11 +79,14 @@ matcss_list.vue
 
                 return $.extend({ text: 'text', _class: '_class' }, ratioObj);
             },
-            OnClick(item) {
-                if ((this.last_item_click !== item.id) || (item.label !== undefined)) { //
-                    this.last_item_click = item.id;
-                    this.$emit('onSelect', item)
+            OnClick(item, is_mouse) {
+                if (item) {
+                    if (this.last_item_click != item.id)
+                        this.last_item_click = item.id;
+                    else return;
                 }
+
+                this.$emit('onSelect', item, is_mouse)
             }
         }
     }

@@ -28,11 +28,10 @@ matcss_collections.vue
 
 <script>
     import {is_bool} from 'materializecss-vuejs-component';
-
     import './../images/avatar_2x.png';
 
     export default {
-        props: ['items', 'scStyle', 'ratioProp', 'avatarMode', 'selectedMode', 'multiselect', 'selectedId', 'materialIcons'],
+        props: ['items', 'scStyle', 'liClass', 'ratioProp', 'avatarMode', 'selectedMode', 'multiselect', 'selectedId', 'materialIcons'],
         name: 'matcss_collections',
         data(){
             return {
@@ -159,6 +158,8 @@ matcss_collections.vue
             li_class(item){
                 let cla = item[this.ratio.class] == undefined? '' : item[this.ratio.class];
 
+                if (this.liClass != undefined)
+                    cla+=' ' + this.liClass;
                 if (this.c_avatarMode)
                     cla+=' avatar';
 
@@ -185,6 +186,10 @@ matcss_collections.vue
     }
 </script>
 <style>
+    ul li.collection-item.b-white {
+        border-bottom: 2px solid white !important;
+    }
+
     .collection .collection-item .title {
         padding-bottom: 8px;
         width: 80%;
