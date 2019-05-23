@@ -6,13 +6,15 @@ matcss_collections.vue
     div
         .center-align.nodata.grey-text.text-lighten-1(v-if="items.length == 0")
             slot(name="clear")
-                span The list is empty :(
-        ul.collection(v-if="items.length > 0", @contextmenu="cm($event)")
-            li.collection-item(v-for="item in items", @dblclick="itemdblClick(item, $event)", @click="OnLiClick(item, $event)", :class="li_class(item)", :key="item.id")
+                span {{ $t('this_list_is_empty') }}
+        ul.collection(v-if="items.length > 0", @contextmenu="cm($event)", style="border: none !important;")
+            li.collection-item(v-for="item in items", @dblclick="itemdblClick(item, $event)", @click="OnLiClick(item, $event)", :class="li_class(item)", :key="item.id", style="margin-bottom: 2px; border: 1px solid #e0e0e0;")
                 slot(name="item", :item="item")
                     i.circle.material-icons(v-if="c_avatarMode && c_materialIcons") {{ item[ratio.photo] !== undefined? item[ratio.photo]: 'account_circle' }}
                     img.circle(v-if="c_avatarMode && !c_materialIcons", :src="item[ratio.photo] !== undefined? item[ratio.photo]: '/avatar_2x.png'", alt='')
-                    p.title.truncate(:class="{single: !c_avatarMode}") {{ item[ratio.title] }}
+                    slot(name="title", :item="item")
+                        p.title.truncate(:class="{single: !c_avatarMode}", style="min-height: 22px;") {{ item[ratio.title] }}
+                        // возможно, не лучшее решение
 
                     //br(v-if="item[ratio.line1] != undefined && item[ratio.line1] != '' && !c_avatarMode")
                     span.line1.line(v-if="item[ratio.line1] != undefined && item[ratio.line1] != '' && !c_avatarMode" ) {{ item[ratio.line1] }}
@@ -31,7 +33,7 @@ matcss_collections.vue
     import './../images/avatar_2x.png';
 
     export default {
-        props: ['items', 'scStyle', 'liClass', 'ratioProp', 'avatarMode', 'selectedMode', 'multiselect', 'selectedId', 'materialIcons'],
+        props: ['items', 'scStyle', 'ratioProp', 'avatarMode', 'selectedMode', 'multiselect', 'selectedId', 'materialIcons'],
         name: 'matcss_collections',
         data(){
             return {
@@ -158,8 +160,6 @@ matcss_collections.vue
             li_class(item){
                 let cla = item[this.ratio.class] == undefined? '' : item[this.ratio.class];
 
-                if (this.liClass != undefined)
-                    cla+=' ' + this.liClass;
                 if (this.c_avatarMode)
                     cla+=' avatar';
 
@@ -186,10 +186,6 @@ matcss_collections.vue
     }
 </script>
 <style>
-    ul li.collection-item.b-white {
-        border-bottom: 2px solid white !important;
-    }
-
     .collection .collection-item .title {
         padding-bottom: 8px;
         width: 80%;

@@ -3,7 +3,7 @@ Created by Roman on 01.03.2018.
 matcss_chips.vue
 
 <template lang="pug">
-    div
+    .chips-field
         label {{ name }}
         .chips
 </template>
@@ -39,6 +39,13 @@ matcss_chips.vue
                         _this.setData(_this.val);
                     _this.OnUpdate();
                 });
+
+                setTimeout(function() {
+                    $(_this.$el).find('input').on('blur', function () {
+                        _this.chp.addChip({tag: $(_this.$el).find('input').val()}, _this.chp);
+                        $(_this.$el).find('input').val('');
+                    });
+                }, 10);
             })
         },
         methods:{
@@ -46,7 +53,7 @@ matcss_chips.vue
                 this.chp.material_chip({
                     placeholder: this.placeholder,
                     secondaryPlaceholder: this.secondaryPlaceholder,
-                    data: this.val
+                    data: val || this.val
                 });
             },
             OnUpdate(){

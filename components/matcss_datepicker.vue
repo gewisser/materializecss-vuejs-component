@@ -5,7 +5,7 @@ matcss_datepicker.vue
 <template lang="pug">
     .input-field
         i.material-icons.prefix(v-if="iconPrefix !== undefined", :class="{'red-text' : dateClass.redtext, 'grey-text': c_disabled}") {{ iconPrefix }}
-        input.datepicker(type='text', :id="GUIDID", :class="c_class", :disabled="c_disabled")
+        input.datepicker(:style="{'border-bottom': valid ? ' 2px solid #4CAF50' : required ? '2px solid #F44336' : ''}", type='text', :id="GUIDID", :class="c_class", :disabled="c_disabled")
         label(style="width: 100%;", :for='GUIDID', :class="{active: textExist}") {{ name }}
 </template>
 
@@ -33,7 +33,7 @@ matcss_datepicker.vue
 
     export default {
         name: 'matcss_datepicker',
-        props: ['container', 'val', 'checkValidation', 'forbiddenDaysOfWeek', 'minDate_str', 'maxDate_str', 'placeholder', 'name', 'iconPrefix', 'inputClass', 'disabled'],
+        props: ['required', 'valid', 'container', 'val', 'checkValidation', 'forbiddenDaysOfWeek', 'minDate_str', 'maxDate_str', 'placeholder', 'name', 'iconPrefix', 'inputClass', 'disabled'],
         data() {
             return {
                 GUIDID:  Materialize.guid(),
@@ -46,12 +46,15 @@ matcss_datepicker.vue
         },
         watch: {
             val(newVal){
-                if (newVal == null || newVal == '')
+                const picker = this.datepicker.pickadate('picker');
+
+                if (newVal == null || newVal == '') {
+                    picker.set('clear');
                     return;
+                }
 
                 this.informValidation(1);
 
-                const picker = this.datepicker.pickadate('picker');
                 picker.set('select', newVal, { format: 'yyyy-mm-dd' })
             },
             minDate_str() {
@@ -85,15 +88,12 @@ matcss_datepicker.vue
                 switch (val) {
                     case -1:
                         this.dateClass.redtext = true;
-
                         break;
                     case 0:
                         this.dateClass.redtext = true;
-
                         break;
                     case 1:
                         this.dateClass.redtext = false;
-
                         break;
                 }
             }
@@ -111,7 +111,7 @@ matcss_datepicker.vue
                     selectMonths: true, // Creates a dropdown to control month
                     selectYears: 150, // Creates a dropdown of 15 years to control year,
 
-                    closeOnSelect: false, // Close upon selecting a date,
+                    closeOnSelect: true, // Close upon selecting a date,
 
                     onSet: function(thingSet) {
                         let outOfRangeMinus = false,
@@ -119,15 +119,16 @@ matcss_datepicker.vue
 
                         if (_this.minDate !== undefined)
                             outOfRangeMinus =
-                                _this.minDate - 1 > new Date(this.get('select', 'yyyy-mm-dd'));
+                                _this.minDate - 1 + 1 > new Date(this.get('select', 'yyyy-mm-dd'));
                         if (_this.maxDate !== undefined)
                             outOfRangePlus =
-                                _this.maxDate + 1 < new Date(this.get('select', 'yyyy-mm-dd'));
+                                _this.maxDate - 1 + 1 < new Date(this.get('select', 'yyyy-mm-dd'));
 
-                        if (!outOfRangeMinus && !outOfRangePlus)
-                            _this.$emit('update:val', this.get('select', 'yyyy-mm-dd'));
-                        else if (outOfRangeMinus) {
-                            Materialize.toast("This date is unavailable for selection...", 6000, 'rounded red darken-4');
+                        if (!outOfRangeMinus && !outOfRangePlus) {
+                            if (this.get('select', 'yyyy-mm-dd') != _this.val)
+                                _this.$emit('update:val', this.get('select', 'yyyy-mm-dd'));
+                        } else if (outOfRangeMinus) {
+                            Materialize.toast(`${this.$t('this_date_is_unavailable_for_selection')}`, 6000, 'rounded red');
                             if (_this.forbiddenDaysOfWeek != undefined) {
                                 let conflict = true;
                                 while (conflict) {
@@ -142,7 +143,7 @@ matcss_datepicker.vue
                             }
                             this.set('select', _this.minDate, {format: 'yyyy-m-d'});
                         } else if (outOfRangePlus) {
-                            Materialize.toast("This date is unavailable for selection...", 6000, 'rounded red darken-4');
+                            Materialize.toast(`${this.$t('this_date_is_unavailable_for_selection')}`, 6000, 'rounded red');
                             if (_this.forbiddenDaysOfWeek != undefined) {
                                 let conflict = true;
                                 while (conflict) {
@@ -178,6 +179,9 @@ matcss_datepicker.vue
 </script>
 <style scoped>
     .invalid {
-        color: red !important;
+        border-bottom: red !important;
+    }
+    .valid {
+        border-bottom: green !important;
     }
 </style>

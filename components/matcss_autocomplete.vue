@@ -23,7 +23,15 @@ matcss_autocomplete.vue
 
     export default {
         inputElement: undefined,
-        props: ['name', 'val', 'url', 'iconPrefix', 'disabled', 'readonly'],
+        props: {
+            name:       {type: String, default: 'Type text...'},
+            val:        { type: Object, default: undefined },
+            url:        { type: Object },
+            iconPrefix: { type: String, default: undefined },
+            disabled:   { type: Boolean, default: false },
+            readonly:   { type: Boolean, default: false },
+            itemName:   { type: String, default: 'itemName' }
+        },
         name: 'matcss_autocomplete',
         data () {
             return {
@@ -37,7 +45,7 @@ matcss_autocomplete.vue
         },
         computed: {
             textExist(){
-                return this.val !== undefined && this.val.itemName !== undefined && this.val.itemName !== '';
+                return this.val !== undefined && this.val[this.itemName] !== undefined && this.val[this.itemName] !== '';
             },
             c_disabled(){
                 return is_bool(this.disabled);
@@ -49,7 +57,7 @@ matcss_autocomplete.vue
         },
         watch: {
             val: {
-                handler(val, oldVal){
+                handler(val){
                     this.initVal(val);
                 },
                 deep: true
@@ -61,9 +69,9 @@ matcss_autocomplete.vue
                 if (val_obj == undefined) {
                     this.$options.inputElement.val('');
                     this.curInputVal = '';
-                } else if (val_obj.itemName !== undefined && val_obj.itemName != this.curInputVal) {
-                    this.$options.inputElement.val(val_obj.itemName);
-                    this.curInputVal = val_obj.itemName;
+                } else if (val_obj[this.itemName] !== undefined && val_obj[this.itemName] != this.curInputVal) {
+                    this.$options.inputElement.val(val_obj[this.itemName]);
+                    this.curInputVal = val_obj[this.itemName];
                 }
             },
             onChange() {
@@ -131,9 +139,10 @@ matcss_autocomplete.vue
 
                         _this.rawData = response.body.list;
 
-                        response.body.list.forEach(function callback(currentValue, index, array) {
+                        response.body.list.forEach(function callback(currentValue) {
                             let item = {};
-                            item[currentValue.itemName] = '/pixel.gif" data-id="'+currentValue.id;
+
+                            item[currentValue[_this.itemName]] = '/pixel.gif" data-id="'+currentValue.id;
 
                             $.extend(adata, item)
                         });
@@ -141,8 +150,6 @@ matcss_autocomplete.vue
 
                         jQ_this.trigger('blur.autocomplete');
                         jQ_this.trigger('focus.autocomplete');
-                    }, response => {
-
                     });
                 }, 600)
             });

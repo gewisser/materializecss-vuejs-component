@@ -11,7 +11,8 @@ matcss_timepicker.vue
             @change="onChange",
             :value="value",
             :class="inputClass",
-            :disabled="c_disabled"
+            :disabled="c_disabled",
+            :style="{'border-bottom': valid ? ' 2px solid #4CAF50' : required ? '2px solid #F44336' : ''}"
         )
         label(v-if="name", style="width: 100%;", :for='GUIDID', :class="{active: textExist}") {{ name }}
 </template>
@@ -24,7 +25,7 @@ matcss_timepicker.vue
         name: 'matcss_timepicker',
         props: {
             value: {type: String, default: undefined },
-            name: {type: String, default: false },
+            name: {type: String, default: undefined },
             default:{ type: String, default: 'now'},
             twelvehour:{ type: Boolean, default: false},
             donetext:{ type: String, default: 'OK'},
@@ -32,9 +33,11 @@ matcss_timepicker.vue
             canceltext:{ type: String, default: 'Cancel'},
             autoclose:{ type: Boolean, default: false},
             ampmclickable:{ type: Boolean, default: true},
-            iconPrefix: {type: String, default: false},
+            iconPrefix: {type: String, default: undefined},
             inputClass: {default: false},
-            disabled: {default: false}
+            disabled: {default: false},
+            valid: {default: false},
+            required: {default: false}
         },
         data() {
             return {

@@ -6,7 +6,8 @@ matcss_input.vue
     .input-field(:class="ifclass")
         i.material-icons.prefix(v-if="iconPrefix", data-position="bottom", :data-tooltip="tooltip", :class="{tooltipped: tooltip}") {{ iconPrefix }}
 
-        input(
+        input.truncate(
+            :style="{'border-bottom': valid ? ' 2px solid #4CAF50' : required ? '2px solid #F44336' : ''}",
             v-if="!showTextarea",
             :id="GUIDID",
             :value="val",
@@ -17,11 +18,12 @@ matcss_input.vue
             :readonly="c_readonly",
             :placeholder="placeholder",
             :autocomplete="autocomplete === undefined? false: autocomplete",
-            @focus="focused = true",
-            @blur="focused = false"
+            @focus="onFocus",
+            @blur="onBlur"
         )
 
         textarea.materialize-textarea(
+            :style="{'border-bottom': valid ? ' 2px solid #4CAF50' : required ? '2px solid #F44336' : ''}",
             v-if="showTextarea",
             :id="GUIDID",
             @change="onChange",
@@ -29,7 +31,9 @@ matcss_input.vue
             :disabled="c_disabled",
             :readonly="c_readonly",
             :value="val",
-            :placeholder="placeholder"
+            :placeholder="placeholder",
+            @focus="onFocus",
+            @blur="onBlur"
         )
 
 
@@ -38,7 +42,7 @@ matcss_input.vue
         label.inner-icon.append-inner-icon(v-if="appendInnerIcon", :for="GUIDID", @click="onIconClick(appendInnerIcon)")
             i.material-icons {{ appendInnerIcon }}
 
-        label(v-if="!borderStyle", style="width: 100%;", :for='GUIDID', :class="{ active: textExist}", :data-error="dataError", :data-success="dataSuccess") {{ name }}
+        label(v-if="!borderStyle && name", style="width: 100%;", :for='GUIDID', :class="{ active: textExist}", :data-error="dataError", :data-success="dataSuccess") {{ name }}
 </template>
 
 <script>
@@ -61,14 +65,21 @@ matcss_input.vue
             'addClass',
             'isTextarea',
             'placeholder',
-            'numeric',
+            'numeric', // разрешает вводить исключительно цифры и некоторые арифметические знаки, приводит число к int
+            // 'doc_number', // запрещает вводить точки и прочие арифметические знаки, не приводит число к int
+            'is_currency', // не разрешает вводить ничего, кроме цифр и одной точки
             'autocomplete',
             'checkValidation',
             'positive',
             'borderStyle',
             'prependInnerIcon',
             'appendInnerIcon',
-            'clearOnEnter'
+            'clearOnEnter',
+            'autofocus',
+            'autoSelect',
+            'round',
+            'valid',
+            'required',
         ],
         name: 'matcss_input',
         data () {
@@ -86,17 +97,26 @@ matcss_input.vue
                 return {
                     'mode-border': this.borderStyle,
                     'card': this.borderStyle,
-                    'foc': this.focused,
+                    'foc': this.focused && this.borderStyle,
                     'f-prepend': this.prependInnerIcon,
                     'f-append': this.appendInnerIcon
                 }
             },
 
             textExist(){
-                return (this.val && this.val !== '') || (this.placeholder && this.placeholder !== '');
+                let ret = (this.val && this.val !== '') || (this.placeholder && this.placeholder !== '');
+                if (this.$options.input)
+                    ret = ret ||  this.$options.input.val() != '';
+
+                return ret;
+            },
+            c_clear_shadows() {
+                return {
+                    clear_shadows: !!(!this.valid && this.required)
+                }
             },
             c_inputClass(){
-                return get_obj(this.addClass, this.inputClass);
+                return get_obj(get_obj(this.addClass, this.inputClass), this.c_clear_shadows);
             },
             c_disabled(){
                 return is_bool(this.disabled);
@@ -137,14 +157,33 @@ matcss_input.vue
             }
         },
         methods: {
+            setFocus(){
+                if (!this.$options.input || !this.autofocus)
+                    return;
+
+                this.$options.input.focus();
+            },
+
+            onFocus(){
+                if (this.autoSelect || this.val && this.val == 0 && (this.numeric || this.is_currency) ) {
+                    this.$options.input.select();
+                }
+
+                this.focused = true;
+                this.$emit('focus')
+            },
+
+            onBlur(){
+                this.focused = false;
+                this.$emit('blur')
+            },
+
             onIconClick(iconName){
                 this.$emit('onIconClick', iconName);
             },
 
             onChange() {
-                let el ='input';
-                el = this.showTextarea? 'textarea': el;
-                this.UpdateVal($(this.$el).children(el).val());
+                this.UpdateVal(this.$options.input.val());
             },
 
             UpdateVal(val){
@@ -156,13 +195,28 @@ matcss_input.vue
                     this.informValidation(result);
                     this.$emit('update:isValid', result);
                 }
-
-                if (this.numeric && this.positive) {
+                if (this.is_currency)
+                    this.$emit('update:val', this.correctValue(val));
+                else if (this.numeric && this.positive) {
                     this.$emit('update:val', Math.abs(val));
                 } else
                     this.$emit('update:val', val);
             },
+            correctValue(val) {
+                if (val) {
+                    let value = parseFloat(val);
 
+                    if (value == '')
+                        return 0;
+
+                    if (this.round != undefined)
+                        value = (Math.round(parseFloat(val) * (Math.pow(10, parseInt(this.round))))) / (Math.pow(10, parseInt(this.round)));
+
+                    return this.positive ? Math.abs(value) : parseFloat(value);
+                }
+                else
+                    return 0;
+            },
             informValidation(val){
                 switch (val) {
                     case -1:
@@ -192,25 +246,36 @@ matcss_input.vue
             this.$options.input = $(this.$el).find(el).keypress(function (e) {
                 let ret = true;
 
-                if (_this.is_numeric)
+
+                if (_this.is_numeric && !_this.is_currency)
                     if ((e.which == 32) || (e.which == 37) || (e.which == 38) || (e.which == 39) || (e.which == 40) || (e.which == 46) ||
                         (e.which ==  9) || (e.which ==  8) || (e.which == 35) || (e.which ==  36) || (e.which == 13)) ret = true;
                     else
                         ret = ((e.which > 47) && (e.which < 58));
 
+                else if (_this.is_numeric && _this.is_currency)
+                    ret = ((e.which == 46) || ((e.which > 47) && (e.which < 58))); // только точки и только цифры допускаются к вводу
+
                 var val = $(this).val();
 
-                if (e.which == 13 && val) {
+                if (_this.is_currency && _this.is_numeric && ret && (_this.round > 0 || _this.round == undefined) && e.which == 46) // запрет на ввод более чем одной точки, когда речь о числах
+                    ret = !~val.indexOf('.');
+                else if (_this.is_currency && _this.is_numeric && ret && _this.round == 0 && e.which == 46) // если знаков после точки нет - значит и точка не нужна
+                    ret = false;
+
+                if (e.which == 13 && val && !e.shiftKey) {
+                    ret = false;
                     if (_this.clearOnEnter)
                         $(this).val('');
-                    else
-                        _this.UpdateVal(val);
-    
+
                     _this.$emit('onEnter', val);
                 }
 
+
                 return ret;
             });
+
+            this.setFocus();
 
             if (this.iconPrefix && this.tooltip)
                 $(this.$el).find('.tooltipped').tooltip();
@@ -253,5 +318,22 @@ matcss_input.vue
         .append-inner-icon
             right: 10px !important
             left: auto !important
+
+    textarea:not(.browser-default)[readonly="readonly"]
+        color: rgba(0,0,0,0.42) !important
+
+    .input-field input[type=text].clear_shadows:not(.browser-default):focus:not([readonly]), .input-field textarea.clear_shadows:not(.browser-default):focus:not([readonly])
+        box-shadow: none
+        -webkit-box-shadow: none
+
+
+    .lite_input
+        margin-top: -2px !important
+        width: 75px
+        input
+            margin-bottom: 0 !important
+            margin: 0 !important
+            height: 21px !important
+            text-align: center
 
 </style>

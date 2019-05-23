@@ -5,7 +5,7 @@ matcss_list.vue
 <template lang="pug">
     div(v-callout="true")
         ul.dropdown-content(:id="id")
-            li(v-for="item in items", :class="item[ratio.text] == '-'?'divider': ''", @click="OnClick(item, true)")
+            li(v-for="item in items", :class="c_class_item(item)", @click="OnClick(item, true)")
                 slot(:item="item")
                     a.tooltipped(
                         v-if="tooltipped",
@@ -30,7 +30,7 @@ matcss_list.vue
         created(){
             var obj = undefined;
 
-            this.items.forEach(function(currentValue, index, array) {
+            this.items.forEach(function(currentValue) {
                 if (this.selectedId == currentValue.id) {
                     obj = currentValue;
                     return false;
@@ -68,6 +68,13 @@ matcss_list.vue
             })
         },
         methods: {
+            c_class_item(item){
+                return {
+                    divider: item[this.ratio.text] == '-',
+                    active: this.selectedId == item.id
+                }
+            },
+
             c_ratioProp(){
                 let ratioObj = {};
 
@@ -80,6 +87,8 @@ matcss_list.vue
                 return $.extend({ text: 'text', _class: '_class' }, ratioObj);
             },
             OnClick(item, is_mouse) {
+                this.$emit('onClick', item, is_mouse);
+
                 if (item) {
                     if (this.last_item_click != item.id)
                         this.last_item_click = item.id;

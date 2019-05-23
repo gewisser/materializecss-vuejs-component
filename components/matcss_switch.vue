@@ -3,7 +3,7 @@ Created by Roman on 20.09.2017.
 matcss_switch.vue
 
 <template lang="pug">
-    div
+    .switch-field
         label {{ name }}
         .switch(style="margin-top: 8px;")
             label

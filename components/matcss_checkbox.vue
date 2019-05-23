@@ -3,8 +3,8 @@ Created by Roman on 29.08.2017.
 matcss_checkbox.vue
 
 <template lang="pug">
-    div
-        input(type="checkbox", :id="GUIDID", :checked="c_checked", :disabled="c_readonly")
+    .checkbox-field
+        input(type="checkbox", :id="GUIDID", :checked="c_checked", :disabled="c_readonly", :class="{'filled-in': filled}")
         label(:for="GUIDID") {{ name }}
 </template>
 
@@ -12,7 +12,7 @@ matcss_checkbox.vue
     import {is_bool} from 'materializecss-vuejs-component';
 
     export default {
-        props: ['name', 'checked', 'readonly', 'indeterminate'],
+        props: ['name', 'checked', 'readonly', 'indeterminate', 'filled'],
         name: 'matcss_checkbox',
         data () {
             return {

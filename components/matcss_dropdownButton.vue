@@ -4,6 +4,7 @@ matcss_dropdownButton.vue
 
 <template lang="pug">
     a.dropdown-button.truncate(
+        :class="tooltipped ? 'tooltipped' : ''",
         :data-activates='GUIDID',
         data-position="right",
         data-delay="200",
@@ -16,6 +17,7 @@ matcss_dropdownButton.vue
             :items="items",
             :id="GUIDID",
             @onSelect="onSelect",
+            @onClick="(item, is_mouse) => {$emit('onClick', item, is_mouse)}",
             :selected-id="selectedId",
             :aclass="aclass == undefined? '': aclass",
             :ratio-prop="ratio",
@@ -39,8 +41,18 @@ matcss_dropdownButton.vue
         },
         updated: function () {
             this.$nextTick(function () {
-                if (this.tooltipped)
-                    $(this.$el).tooltip();
+                if (this.tooltipped) {
+                    let elem = $(this.$el);
+
+                    elem.tooltip('remove');
+
+                    elem.tooltip();
+
+                    elem.on('click', function(e) {
+                        elem.tooltip('close');
+                        // TODO : позже переделать. CLOSE - закрыть тултип, REMOVE - удалить тултип навсегда
+                    });
+                }
             })
         },
 

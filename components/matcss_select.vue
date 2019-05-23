@@ -48,10 +48,14 @@ matcss_select.vue
             'readonly',
             'defMess',
             'optgroup',
-            'inputClass'
+            'inputClass',
+            'valid',
+            'required'
         ],
         data () {
             return {
+                input_el: undefined,
+
                 curSelId: this.noSelectedId,
                 cur_items_len: -1,
                 ratio: this.c_ratioProp(),
@@ -61,13 +65,16 @@ matcss_select.vue
                 selectClass: {
                     valid: false,
                     invalid: false
-                }
+                },
             }
         },
         created(){
             //this.addFirstItem();
         },
         computed:{
+            c_validation() {
+                return this.valid + this.required + this.selectedId;
+            },
             c_readonly(){
                 return is_bool(this.readonly);
             },
@@ -76,6 +83,9 @@ matcss_select.vue
             }
         },
         watch: {
+            c_validation() {
+                this.validateSelect();
+            }, // для c_validation
             selectedId(val){
                 if (this.c_multiple) {
                     let sf_selectedId = JSON.stringify(val);
@@ -110,9 +120,23 @@ matcss_select.vue
         updated: function () {
             this.$nextTick(function () {
                 this.reinitSelect();  // вызывает закрытие селекта при мультивыборе
+                // К сожалению в других местах неработает пост обновление данных. Раскоментировано. Не коментировать!
+
             })
         },
         methods:{
+            validateSelect() {
+                let input_el = this.input_el = $(this.$el).find('.select-wrapper input.select-dropdown');
+                if (this.valid) {
+                    $(input_el).addClass('valid_brd');
+                    if (this.required)
+                        $(input_el).removeClass('invalid_brd')
+                } else {
+                    $(input_el).removeClass('valid_brd');
+                    if (this.required)
+                        $(input_el).addClass('invalid_brd')
+                }
+            },
             informValidation(val){
                 switch (val) {
                     case -1:
@@ -136,7 +160,7 @@ matcss_select.vue
             setNoSelected(){
                 const edit = this.$options.selectDOM.prev().prev();
                 edit.css("color", "#9e9e9e");
-                edit.val(this.defMess === undefined? 'Select a value from the list': this.defMess);
+                edit.val(this.defMess === undefined? `${this.$t('select_a_value_from_the_list')}`: this.defMess);
             },
 
             getLineObj(idx){
@@ -348,6 +372,8 @@ matcss_select.vue
                         _this.$emit('onSelect', _curSelObj, false);
                     }
                 });
+
+                this.validateSelect();
             }
         },
         mounted(){
@@ -357,6 +383,14 @@ matcss_select.vue
     }
 </script>
 
+<style>
+    .select-wrapper input.select-dropdown.valid_brd {
+        border-bottom: 2px solid #4CAF50 !important;
+    }
+    .select-wrapper input.select-dropdown.invalid_brd {
+        border-bottom: 2px solid red !important;
+    }
+</style>
 <style scoped>
     .input-field >>> .dropdown-content li > span > label {
         top: -11px;

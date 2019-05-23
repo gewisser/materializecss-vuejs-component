@@ -5,8 +5,9 @@ matcss_modal.vue
 <template lang="pug">
     .modal(:id="modalID")
         .modal-content
-            h5 {{ caption }}
-            .div(style="margin-top: 22px")
+            slot(name='header')
+                h5(v-if="caption") {{ caption }}
+            div(style="margin-top: 22px")
                 slot
         .modal-footer(@click="OnClick")
             slot(name='footer')
@@ -71,3 +72,8 @@ matcss_modal.vue
         }
     }
 </script>
+
+<style scoped lang="sass">
+    .footer_auto_height > .modal-footer
+        height: auto !important
+</style>

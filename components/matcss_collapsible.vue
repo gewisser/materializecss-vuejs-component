@@ -6,10 +6,10 @@ matcss_collapsible.vue
     div
         .center-align.nodata.grey-text.text-lighten-1(v-if="items.length == 0")
             slot(name="clear")
-                span This list is empty :(
+                span {{ $t('this_list_is_empty')}}
         ul(:class="cclass !== undefined? cclass: ''", :data-collapsible="dataCollapsible")
             li(v-for="(item, index) in items", :id="item.id", :key="item.id")
-                .collapsible-header(@click="OnClick(item, $event)")
+                .collapsible-header(@click="OnClick(item, $event)", :class="c_class(item)")
                     slot(name="header", :item="item")
                 .collapsible-body(@click="OnClick(item, $event)")
                     slot(name="body", :item="item" :index="index")
@@ -18,9 +18,37 @@ matcss_collapsible.vue
 
 <script>
     export default {
-        props: ['items', 'cclass', 'dataCollapsible'],
+        collapsbl: undefined,
+        props: ['items', 'cclass', 'dataCollapsible', 'activeId'],
         name: 'matcss_collapsible',
+        watch: {
+            activeId(val) {
+                this.setActiveByItemId(val)
+            }
+        },
         methods:{
+            setActiveByItemId(id){
+                for (let i = 0; i < this.items.length; i++)
+                    if (this.items[i].id == id) {
+                        this.items[i].active = true;
+                        this.$options.collapsbl.collapsible('open', i);
+                        return;
+                    }
+            },
+
+            c_class(item) {
+                return (this.activeId == item.id ? 'active ' : '') + (item.ch_class != undefined ? item.ch_class : '')
+            },
+            /*c_color(item) {
+                return item.color || '';
+            },
+            c_active(item){
+                if (this.activeId == undefined)
+                    return false;
+
+                return item.id == this.activeId;
+            },*/
+
             OnClick(item, event) {
                 this.$emit('onClick', item, event)
             },
@@ -30,7 +58,7 @@ matcss_collapsible.vue
 
                 var ret = undefined;
 
-                this.items.forEach(function callback(currentValue, index, array) {
+                this.items.forEach(function callback(currentValue, index) {
                     if (index == id) {
                         ret = currentValue;
                         return false;
@@ -43,9 +71,9 @@ matcss_collapsible.vue
         mounted(){
             //console.log('с - init'); ??
 
-            this.collapsbl = $(this.$el).children('ul');
+            this.$options.collapsbl = $(this.$el).children('ul');
 
-            this.collapsbl.collapsible({
+            this.$options.collapsbl.collapsible({
                     onOpen: el => {
                         this.$emit('onOpen', this.findItem(el.index()))
                     },
@@ -67,5 +95,8 @@ matcss_collapsible.vue
         ul li .collapsible-body {
             padding: 10px;
         }
+    }
+    .collapsible-header {
+        transition: background .15s;
     }
 </style>

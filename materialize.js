@@ -1614,7 +1614,8 @@ if (Vel) {
       belowOrigin: false,
       alignment: 'left',
       stopPropagation: false,
-	  scrollParent: null // let it be yet undocumented features
+	  scrollParent: null, // let it be yet undocumented features
+      openOnClick: true // автоматически открывать по клику
     };
 
     // Open dropdown.
@@ -1783,7 +1784,7 @@ if (Vel) {
             hideDropdown();
             $(document).off('click.' + activates.attr('id'));
           });
-        }, 0);
+        }, 500);
       }
 
       function hideDropdown() {
@@ -1841,7 +1842,9 @@ if (Vel) {
               if (curr_options.stopPropagation) {
                 e.stopPropagation();
               }
-              placeDropdown('click');
+
+              if (curr_options.openOnClick)
+                placeDropdown('click');
             }
             // If origin is clicked and menu is open, close menu
             else if (origin.hasClass('active')) {
@@ -6565,7 +6568,7 @@ if (Vel) {
 
               // If the target was the holder that covers the screen,
               // keep the element focused to maintain tabindex.
-              P.close(target === P.$root.children()[0]);
+              //P.close(target === P.$root.children()[0]);
             }
           }).on('keydown.' + STATE.id, function (event) {
 
@@ -8998,7 +9001,7 @@ if (Vel) {
     $doc.on('click.clockpicker.' + this.id + ' focusin.clockpicker.' + this.id, function (e) {
       var target = $(e.target);
       if (target.closest(self.popover.find('.picker__wrap')).length === 0 && target.closest(self.input).length === 0) {
-        self.hide();
+        //self.hide();
       }
     });
     // Hide when ESC is pressed
