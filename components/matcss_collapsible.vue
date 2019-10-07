@@ -21,19 +21,33 @@ matcss_collapsible.vue
         collapsbl: undefined,
         props: ['items', 'cclass', 'dataCollapsible', 'activeId'],
         name: 'matcss_collapsible',
+        data(){
+            return {
+                act_id: this.activeId
+            }
+        },
         watch: {
-            activeId(val) {
-                this.setActiveByItemId(val)
+            activeId(val, old) {
+                if (this.act_id == val)
+                    return;
+
+                this.setActiveByItemId(val, old)
             }
         },
         methods:{
-            setActiveByItemId(id){
-                for (let i = 0; i < this.items.length; i++)
+            setActiveByItemId(id, old){
+
+                for (let i = 0; i < this.items.length; i++) {
                     if (this.items[i].id == id) {
                         this.items[i].active = true;
                         this.$options.collapsbl.collapsible('open', i);
-                        return;
+                    } else
+                        this.items[i].active = false;
+
+                    if (this.items[i].id == old) {
+                          this.$options.collapsbl.collapsible('close', i);
                     }
+                }
             },
 
             c_class(item) {
@@ -69,19 +83,29 @@ matcss_collapsible.vue
             }
         },
         mounted(){
-            //console.log('с - init'); ??
-
             this.$options.collapsbl = $(this.$el).children('ul');
 
             this.$options.collapsbl.collapsible({
                     onOpen: el => {
-                        this.$emit('onOpen', this.findItem(el.index()))
+                        let item = this.findItem(el.index());
+
+                        this.act_id = item.id;
+                        this.$emit('update:activeId', this.act_id);
+                        this.$emit('onOpen', item);
                     },
                     onClose: el => {
+                        let item = this.findItem(el.index());
+                        if (item && this.act_id == item.id) {
+                            this.act_id = undefined;
+                            this.$emit('update:activeId', this.act_id);
+                        }
+
                         this.$emit('onClose', this.findItem(el.index()))
                     }
                 }
             );
+
+            this.setActiveByItemId(this.activeId);
         }
 
     }

@@ -32,6 +32,7 @@ matcss_datepicker.vue
     }
 
     export default {
+        datepicker: undefined,
         name: 'matcss_datepicker',
         props: ['required', 'valid', 'container', 'val', 'checkValidation', 'forbiddenDaysOfWeek', 'minDate_str', 'maxDate_str', 'placeholder', 'name', 'iconPrefix', 'inputClass', 'disabled'],
         data() {
@@ -46,7 +47,7 @@ matcss_datepicker.vue
         },
         watch: {
             val(newVal){
-                const picker = this.datepicker.pickadate('picker');
+                const picker = this.$options.datepicker.pickadate('picker');
 
                 if (newVal == null || newVal == '') {
                     picker.set('clear');
@@ -100,13 +101,13 @@ matcss_datepicker.vue
         },
         mounted () {
             this.$nextTick(function () {
-                this.datepicker = $(this.$el).find('.datepicker');
+                this.$options.datepicker = $(this.$el).find('.datepicker');
 
                 changeLocalization(this.$i18n.locale);
 
                 const _this = this;
 
-                this.datepicker.pickadate({
+                this.$options.datepicker.pickadate({
                     container: document.getElementById(_this.container),
                     selectMonths: true, // Creates a dropdown to control month
                     selectYears: 150, // Creates a dropdown of 15 years to control year,
@@ -119,16 +120,16 @@ matcss_datepicker.vue
 
                         if (_this.minDate !== undefined)
                             outOfRangeMinus =
-                                _this.minDate - 1 + 1 > new Date(this.get('select', 'yyyy-mm-dd'));
+                                _this.minDate - 1 > new Date(this.get('select', 'yyyy-mm-dd')) - 1;
                         if (_this.maxDate !== undefined)
                             outOfRangePlus =
-                                _this.maxDate - 1 + 1 < new Date(this.get('select', 'yyyy-mm-dd'));
+                                _this.maxDate - 1 < new Date(this.get('select', 'yyyy-mm-dd')) - 1;
 
                         if (!outOfRangeMinus && !outOfRangePlus) {
                             if (this.get('select', 'yyyy-mm-dd') != _this.val)
                                 _this.$emit('update:val', this.get('select', 'yyyy-mm-dd'));
                         } else if (outOfRangeMinus) {
-                            Materialize.toast(`${this.$t('this_date_is_unavailable_for_selection')}`, 6000, 'rounded red');
+                            Materialize.toast(`${_this.$t('this_date_is_unavailable_for_selection')}`, 6000, 'rounded red');
                             if (_this.forbiddenDaysOfWeek != undefined) {
                                 let conflict = true;
                                 while (conflict) {
@@ -143,7 +144,7 @@ matcss_datepicker.vue
                             }
                             this.set('select', _this.minDate, {format: 'yyyy-m-d'});
                         } else if (outOfRangePlus) {
-                            Materialize.toast(`${this.$t('this_date_is_unavailable_for_selection')}`, 6000, 'rounded red');
+                            Materialize.toast(`${_this.$t('this_date_is_unavailable_for_selection')}`, 6000, 'rounded red');
                             if (_this.forbiddenDaysOfWeek != undefined) {
                                 let conflict = true;
                                 while (conflict) {
@@ -161,7 +162,7 @@ matcss_datepicker.vue
                     }
                 });
 
-                const picker = this.datepicker.pickadate('picker');
+                const picker = this.$options.datepicker.pickadate('picker');
 
                 //picker.set('disable', false);
                 //picker.set('enable', false);

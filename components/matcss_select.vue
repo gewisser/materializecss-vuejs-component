@@ -392,6 +392,9 @@ matcss_select.vue
     }
 </style>
 <style scoped>
+    .input-field >>> ul {
+        top: 0 !important
+    }
     .input-field >>> .dropdown-content li > span > label {
         top: -11px;
     }

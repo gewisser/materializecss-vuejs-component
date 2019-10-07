@@ -27,7 +27,7 @@ matcss_autocomplete2.vue
             i.material-icons cloud
 
         ul.autocomplete-content.dropdown-content(style="position: absolute !important;")
-            li(v-for="(item, index) in items", :key="index", :class="{ active: index === activeIndex }", @mousedown="onSelect(item, false)", @touchstart="onSelect(item, true)")
+            li(style="position: relative", v-for="(item, index) in items", :key="index", :class="{ active: index === activeIndex }", @mousedown="onSelect(item, false)", @touchstart="onSelect(item, true)")
                 slot(:item="item")
                     img.right.circle(v-if="item[ratio.img]" :src="item[ratio.img]")
                     i.material-icons.right.circle.teal-text(v-if="item[ratio.icon]") {{ item[ratio.icon] }}
@@ -86,7 +86,7 @@ matcss_autocomplete2.vue
             c_disabled(){
                 return is_bool(this.disabled);
             },
-            c_readonly(){
+            c_readonly() {
                 return is_bool(this.readonly);
             },
 
@@ -161,6 +161,9 @@ matcss_autocomplete2.vue
                 var timeout_id = undefined;
 
                 this.$options.ddMenuInput.keyup(function(e) {
+                    if (_this.readonly)
+                        return false;
+
                     const jQ_this =  $(this);
 
                     let value = jQ_this.val();
@@ -222,12 +225,24 @@ matcss_autocomplete2.vue
                 });
 
                 this.$options.ddMenuInput.keydown(function(e) {
+                    if (_this.readonly)
+                        return false;
+
                     let keyCode = e.which;
 
                     // select element on Enter
                     if (keyCode === 13 && _this.activeIndex >= 0) {
                         _this.onSelect(_this.items[_this.activeIndex], true);
                         return;
+                    }
+
+                    if (e.which !== 9 &&
+                        e.which !== 13 &&
+                        e.which !== 38 &&
+                        e.which !== 37 &&
+                        e.which !== 39 &&
+                        e.which !== 40 && _this.value !== undefined) {
+                        _this.$emit('input', undefined) // если попытались ввести что-то после выбора, то сбрасываем выбранный объект
                     }
 
                     // Capture up and down key

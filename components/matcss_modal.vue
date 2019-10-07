@@ -4,14 +4,14 @@ matcss_modal.vue
 
 <template lang="pug">
     .modal(:id="modalID")
-        .modal-content
+        .modal-content.ios-scroll-fix
             slot(name='header')
                 h5(v-if="caption") {{ caption }}
             div(style="margin-top: 22px")
                 slot
         .modal-footer(@click="OnClick")
             slot(name='footer')
-                a#btncancel.modal-action.modal-close.waves-effect.waves-green.btn-flat(v-if="buttonCancel == undefined || buttonCancel != ''") {{ buttonCancel == undefined? 'Cancel': buttonCancel }}
+                a#btncancel.modal-action.modal-close.waves-effect.waves-green.btn-flat(v-if="buttonCancel == undefined || buttonCancel != ''") {{ buttonCancel == undefined? $t('cancel'): buttonCancel }}
                 a#btnok.modal-action.waves-effect.waves-green.btn-flat(@click="close") {{ buttonOk == undefined? 'OK': buttonOk }}
 
 </template>
@@ -37,7 +37,9 @@ matcss_modal.vue
         },
         methods:{
             setShow(val){
-                is_bool(val)? this.mod.modal('open'): this.mod.modal('close')
+                is_bool(val)? this.mod.modal('open') : this.mod.modal('close');
+                if (val)
+                    this.$el.querySelector('.modal-content.ios-scroll-fix').scrollTo(0, 0);
             },
 
             OnClick(event) {
@@ -76,4 +78,8 @@ matcss_modal.vue
 <style scoped lang="sass">
     .footer_auto_height > .modal-footer
         height: auto !important
+    .noheader > .modal-content > div
+        margin-top: 0 !important
+    .modal-footer
+        z-index: 1005
 </style>
