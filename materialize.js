@@ -1705,7 +1705,7 @@ if (Vel) {
 
 		var wrapper = null;
 		if (curr_options.scrollParent) {
-			wrapper = curr_options.scrollParent; // manual set parent
+			wrapper = origin.closest(curr_options.scrollParent); // manual set parent
 		} else {
 			var testModal = origin.closest('.modal-content'); // test: in modal window?
             if (testModal.length !== 0 && testModal.css('overflow-y') !== 'auto')
