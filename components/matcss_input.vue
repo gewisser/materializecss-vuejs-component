@@ -51,6 +51,7 @@ matcss_input.vue
     export default {
         input: undefined,
         props: [
+            'setTextAreaFocus',
             'tooltip',
             'name',
             'val',
@@ -80,6 +81,7 @@ matcss_input.vue
             'round',
             'valid',
             'required',
+            'incrementalSearch'
         ],
         name: 'matcss_input',
         data () {
@@ -104,7 +106,7 @@ matcss_input.vue
             },
 
             textExist(){
-                let ret = (this.val && this.val !== '') || (this.placeholder && this.placeholder !== '');
+                let ret = (this.val !== undefined && this.val !== null && this.val !== '') || (this.placeholder && this.placeholder !== '');
                 if (this.$options.input)
                     ret = ret ||  this.$options.input.val() != '';
 
@@ -135,6 +137,10 @@ matcss_input.vue
             this.GUIDID = Materialize.guid();
         },
         watch:{
+            setTextAreaFocus (){
+                this.$options.input.focus();
+                this.$emit('ressetFocus');
+            },
             val() {
                 if (this.validation != undefined) {
                     let run = new Function('val', 'return ' + this.validation);
@@ -160,12 +166,12 @@ matcss_input.vue
             setFocus(){
                 if (!this.$options.input || !this.autofocus)
                     return;
-
                 this.$options.input.focus();
             },
 
             onFocus(){
                 if (this.autoSelect || this.val && this.val == 0 && (this.numeric || this.is_currency) ) {
+
                     this.$options.input.select();
                 }
 
@@ -238,10 +244,13 @@ matcss_input.vue
             }
         },
         mounted(){
+
             const _this = this;
 
             let el ='input';
             el = this.showTextarea? 'textarea': el;
+
+            var timeout_id = undefined;
 
             this.$options.input = $(this.$el).find(el).keypress(function (e) {
                 let ret = true;
@@ -264,15 +273,40 @@ matcss_input.vue
                     ret = false;
 
                 if (e.which == 13 && val && !e.shiftKey) {
-                    ret = false;
-                    if (_this.clearOnEnter)
-                        $(this).val('');
 
+                    if (!(el == 'textarea'))
+                        ret = false;
+
+                    let new_val = val;
+
+                    if (_this.clearOnEnter) {
+                        ret = false;
+                        $(this).val('');
+                        new_val = '';
+                    }
+
+
+                    _this.UpdateVal(new_val);
                     _this.$emit('onEnter', val);
                 }
 
-
                 return ret;
+            }).keyup(function (e) {
+                var val = e.target.value;
+
+                if (val === '')
+                    _this.$emit('onEmpty');  // если будет очищен input от текста.
+
+                if (!_this.incrementalSearch)
+                    return;
+
+                if (timeout_id !== undefined)
+                    window.clearTimeout(timeout_id);
+
+                timeout_id = window.setTimeout(function () {
+                    _this.UpdateVal(val);
+                }, 600)
+
             });
 
             this.setFocus();
@@ -321,6 +355,9 @@ matcss_input.vue
 
     textarea:not(.browser-default)[readonly="readonly"]
         color: rgba(0,0,0,0.42) !important
+
+    .input-field.black-text > input:disabled, .input-field.black-text textarea:not(.browser-default)[readonly="readonly"]
+        color: black !important
 
     .input-field input[type=text].clear_shadows:not(.browser-default):focus:not([readonly]), .input-field textarea.clear_shadows:not(.browser-default):focus:not([readonly])
         box-shadow: none
