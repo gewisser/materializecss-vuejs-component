@@ -30,7 +30,7 @@ matcss_dropdownButton.vue
     import MList from './matcss_list.vue';
 
     export default {
-        props: ['items', 'name', 'selectedId', 'aclass', 'icon', 'iconClass', 'ratioProp', 'tooltipped', 'belowOrigin'],
+        props: ['items', 'name', 'selectedId', 'aclass', 'icon', 'iconClass', 'ratioProp', 'tooltipped', 'belowOrigin', 'scrollParent'],
         name: 'matcss_dropdownButton',
         data () {
             return {
@@ -55,7 +55,14 @@ matcss_dropdownButton.vue
                 }
             })
         },
-
+        watch: {
+            items: {
+                handler () {
+                    this.buttonName = '';
+                },
+                deep: true
+            }
+        },
         created(){
             this.GUIDID = Materialize.guid();
         },
@@ -64,7 +71,7 @@ matcss_dropdownButton.vue
                 return this.icon !== undefined && this.icon != ''
             },
             selectedText(){
-                var text = '';
+                let text = '';
 
                 if (this.name !== undefined && this.name !== '')
                     return this.name;
@@ -72,15 +79,12 @@ matcss_dropdownButton.vue
                 if (this.buttonName != '')
                     return this.buttonName;
 
-
-                //const _this = this;
-
-                this.items.forEach((currentValue)=> {
+                this.items.some((currentValue) => {
                     if (currentValue.id == this.selectedId) {
-                        text =  currentValue[this.ratio.text];
-                        return;
+                        text = currentValue[this.ratio.text];
+                        return true;
                     }
-                }, this);
+                });
 
                 return text;
             }
@@ -114,7 +118,8 @@ matcss_dropdownButton.vue
         mounted () {
             this.$nextTick(function () {
                 $(this.$el).dropdown({
-                    belowOrigin: this.belowOrigin !== undefined
+                    belowOrigin: this.belowOrigin !== undefined,
+                    scrollParent: this.scrollParent
                 });
             })
         }
