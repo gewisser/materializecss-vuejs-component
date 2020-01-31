@@ -6,7 +6,7 @@ matcss_datepicker.vue
     .input-field
         i.material-icons.prefix(v-if="iconPrefix !== undefined", :class="{'red-text' : dateClass.redtext, 'grey-text': c_disabled}") {{ iconPrefix }}
         input.datepicker(:style="{'border-bottom': valid ? ' 2px solid #4CAF50' : required ? '2px solid #F44336' : ''}", type='text', :id="GUIDID", :class="c_class", :disabled="c_disabled")
-        label(style="width: 100%;", :for='GUIDID', :class="{active: textExist}") {{ name }}
+        label(:style="iconPrefix !== undefined? 'width: calc(100% - 3rem)': 'width: 100%'", :for='GUIDID', :class="{active: textExist}") {{ name }}
 </template>
 
 <script>
@@ -179,6 +179,9 @@ matcss_datepicker.vue
     }
 </script>
 <style scoped>
+    .w140 {
+        width: 140px
+    }
     .invalid {
         border-bottom: red !important;
     }

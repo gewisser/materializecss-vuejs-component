@@ -10,9 +10,9 @@ matcss_collapsible.vue
         ul(:class="cclass !== undefined? cclass: ''", :data-collapsible="dataCollapsible")
             li(v-for="(item, index) in items", :id="item.id", :key="item.id")
                 .collapsible-header(@click="OnClick(item, $event)", :class="c_class(item)")
-                    slot(name="header", :item="item")
+                    slot(name="header", :item="item", :index="index")
                 .collapsible-body(@click="OnClick(item, $event)")
-                    slot(name="body", :item="item" :index="index")
+                    slot(name="body", :item="item", :index="index")
 
 </template>
 

@@ -42,7 +42,7 @@ matcss_input.vue
         label.inner-icon.append-inner-icon(v-if="appendInnerIcon", :for="GUIDID", @click="onIconClick(appendInnerIcon)")
             i.material-icons {{ appendInnerIcon }}
 
-        label(v-if="!borderStyle && name", style="width: 100%;", :for='GUIDID', :class="{ active: textExist}", :data-error="dataError", :data-success="dataSuccess") {{ name }}
+        label(v-if="!borderStyle && name", :style="iconPrefix !== undefined? 'width: calc(100% - 3rem)': 'width: 100%'", :for='GUIDID', :class="{ active: textExist}", :data-error="dataError", :data-success="dataSuccess") {{ name }}
 </template>
 
 <script>

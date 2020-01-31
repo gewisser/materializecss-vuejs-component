@@ -5,11 +5,12 @@ matcss_modal.vue
 <template lang="pug">
     .modal(:id="modalID")
         .modal-content.ios-scroll-fix
+            i.material-icons.small.close_icon.teal-text(v-if="!c_footer", @click.stop="close") close
             slot(name='header')
                 h5(v-if="caption") {{ caption }}
             div(style="margin-top: 22px")
                 slot
-        .modal-footer(@click="OnClick")
+        .modal-footer(v-if="c_footer", @click="OnClick")
             slot(name='footer')
                 a#btncancel.modal-action.modal-close.waves-effect.waves-green.btn-flat(v-if="buttonCancel == undefined || buttonCancel != ''") {{ buttonCancel == undefined? $t('cancel'): buttonCancel }}
                 a#btnok.modal-action.waves-effect.waves-green.btn-flat(@click="close") {{ buttonOk == undefined? 'OK': buttonOk }}
@@ -20,7 +21,8 @@ matcss_modal.vue
     import {is_bool} from 'materializecss-vuejs-component';
 
     export default {
-        props: ['caption', 'buttonCancel', 'buttonOk', 'show', 'dismissible', 'startingTop', 'endingTop', 'preventClose'],
+        J_modal: undefined,
+        props: ['caption', 'buttonCancel', 'buttonOk', 'show', 'dismissible', 'startingTop', 'endingTop', 'preventClose', 'footer'],
         name: 'matcss_modal',
         computed: {
             c_show(){
@@ -28,16 +30,25 @@ matcss_modal.vue
             },
             c_dismissible(){
                 return is_bool(this.dismissible);
+            },
+            c_footer(){
+                if (this.footer === undefined)
+                    return true;
+
+                return is_bool(this.footer);
+            },
+            c_preventClose(){
+                return is_bool(this.preventClose)
             }
         },
         data() {
             return {
-                modalID: Materialize.guid()
+                modalID: '_'+Materialize.guid()
             }
         },
         methods:{
             setShow(val){
-                is_bool(val)? this.mod.modal('open') : this.mod.modal('close');
+                is_bool(val)? this.$options.J_modal.modal('open') : this.$options.J_modal.modal('close');
                 if (val)
                     this.$el.querySelector('.modal-content.ios-scroll-fix').scrollTo(0, 0);
             },
@@ -47,8 +58,8 @@ matcss_modal.vue
             },
 
             close() {
-                if (this.preventClose == undefined || this.preventClose == false)
-                    $('#' + this.modalID).modal('close');
+                if (!this.c_preventClose)
+                    this.$options.J_modal.modal('close');
             }
         },
         watch: {
@@ -58,15 +69,20 @@ matcss_modal.vue
         },
         mounted(){
             const _this = this;
-            this.mod = $(this.$el);
 
-            this.mod.modal({
+            this.$options.J_modal = $(this.$el);
+
+
+            this.$options.J_modal.modal({
                 startingTop: _this.startingTop !== undefined? _this.startingTop: '4%',
                 endingTop: _this.endingTop !== undefined? _this.endingTop: '10%',
                 complete: function() {
                     _this.$emit('update:show', false);
 
                 }, // Callback for Modal close
+                ready: function() { // Callback for Modal open.
+                    _this.$emit('update:show', true);
+                },
                 dismissible: _this.dismissible === undefined? true: _this.c_dismissible
             });
 
@@ -76,6 +92,14 @@ matcss_modal.vue
 </script>
 
 <style scoped lang="sass">
+    .close_icon
+        position: fixed
+        right: 5px
+        top: 5px
+        cursor: pointer
+        -webkit-transform: unset !important
+        transform: unset !important
+        pointer-events: unset !important
     .footer_auto_height > .modal-footer
         height: auto !important
     .noheader > .modal-content > div
