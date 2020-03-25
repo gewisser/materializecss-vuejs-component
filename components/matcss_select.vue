@@ -177,10 +177,8 @@ matcss_select.vue
 
             getSelection(item) {
                 if (this.c_multiple) {
-                    if (!Array.isArray(this.selectedId)) {
-                        console.warn('selected-id must be array in selected mode');
+                    if (!Array.isArray(this.selectedId))
                         return false;
-                    }
 
                     for (let i = 0; i < this.selectedId.length; i++) {
                         if (this.selectedId[i] == item.id)
@@ -211,6 +209,9 @@ matcss_select.vue
                 edit.val('');
                 var val = '';
 
+                if (this.c_multiple && !Array.isArray(this.selectedId))
+                    return;
+
                 if (this.c_multiple && this.selectedId.length == 0) {
                     this.setNoSelected();
                 } else if (this.selectedId == this.noSelectedId) {
@@ -218,11 +219,6 @@ matcss_select.vue
                 }
 
                 if (this.c_multiple) {
-                    if (!Array.isArray(this.selectedId)) {
-                        console.warn('selected-id must be array in selected mode');
-                        return;
-                    }
-
                     this.items.forEach(function (currentValue, index, array) {
                         const el = this.$options.selectDOM.children().eq(index);
                         el.prop('selected', false);
@@ -328,7 +324,7 @@ matcss_select.vue
                 if (this.inputClass)
                     edit.addClass(this.inputClass);
 
-                if (this.c_multiple && this.selectedId.length == 0) {
+                if (this.c_multiple && Array.isArray(this.selectedId) && this.selectedId.length == 0) {
                     this.setNoSelected();
                 } else if (this.selectedId == this.noSelectedId) {
                     this.setNoSelected();
