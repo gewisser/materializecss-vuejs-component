@@ -8,7 +8,7 @@ matcss_modal.vue
             i.material-icons.small.close_icon.teal-text(v-if="!c_footer", @click.stop="close") close
             slot(name='header')
                 h5(v-if="caption") {{ caption }}
-            div(style="margin-top: 22px")
+            div(:style="caption? 'margin-top: 22px': undefined")
                 slot
         .modal-footer(v-if="c_footer", @click="OnClick")
             slot(name='footer')
