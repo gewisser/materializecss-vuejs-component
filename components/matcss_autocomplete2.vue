@@ -218,6 +218,8 @@ matcss_autocomplete2.vue
 
                             if (response.body.list.length > 0)
                                 this.activeIndex = 0;
+                            else
+                                this.activeIndex = -1;
 
                             _this.items = response.body.list;
                         });
@@ -264,7 +266,8 @@ matcss_autocomplete2.vue
         }
     }
 </script>
-<style lang="sass">
+
+<style scoped lang="sass">
     .autocomplete-content.dropdown-content>li>i
         padding: 12px
 
@@ -282,8 +285,6 @@ matcss_autocomplete2.vue
         right: 10px !important
         left: auto !important
 
-</style>
-<style scoped lang="sass">
     .input-field input[type=text].clear_shadows:not(.browser-default):focus:not([readonly])
         box-shadow: none
         -webkit-box-shadow: none
