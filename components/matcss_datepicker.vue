@@ -42,21 +42,20 @@ matcss_datepicker.vue
                 maxDate: new Date(this.maxDate_str),
                 dateClass: {
                     redtext: false
-                }
+                },
+                pickerInstance: undefined
             }
         },
         watch: {
             val(newVal){
-                const picker = this.$options.datepicker.pickadate('picker');
-
                 if (newVal == null || newVal == '') {
-                    picker.set('clear');
+                    this.pickerInstance.set('clear');
                     return;
                 }
 
                 this.informValidation(1);
 
-                picker.set('select', newVal, { format: 'yyyy-mm-dd' })
+                this.pickerInstance.set('select', newVal, { format: 'yyyy-mm-dd' })
             },
             minDate_str() {
                 this.minDate = new Date(this.minDate_str);
@@ -82,6 +81,38 @@ matcss_datepicker.vue
             },
             c_disabled(){
                 return is_bool(this.disabled)
+            },
+            pickerValidation() {
+                const min = utils.moment(this.minDate_str)
+                const max = utils.moment(this.maxDate_str)
+                const currentDate = this.pickerInstance.get('select', 'yyyy-mm-dd')
+                const correctMinMax = this.minDate_str && this.maxDate_str
+                        ? utils.moment(min).isBefore(max)
+                        : true,
+                    isMinMaxSame = this.minDate_str && this.maxDate_str
+                        ? utils.moment(min).isSame(max)
+                        : false,
+                    currentIsSet = !!currentDate,
+                    dateIsValid = utils.moment(currentDate).isBetween(min, max, null, '[]'),
+                    outOfRangeMin = this.minDate_str
+                        ? utils.moment(currentDate).isBefore(min)
+                        : false,
+                    outOfRangeMax = this.maxDate_str
+                        ? utils.moment(currentDate).isAfter(max)
+                        : false,
+                    forbiddenConflicts = new Set(this.forbiddenDaysOfWeek)
+                        .has(utils.moment(currentDate).day())
+
+                return {
+                    correctMinMax,
+                    isMinMaxSame,
+                    currentIsSet,
+                    dateIsValid,
+                    outOfRangeMin,
+                    outOfRangeMax,
+                    inRange: !outOfRangeMin && !outOfRangeMax,
+                    forbiddenConflicts
+                }
             }
         },
         methods: {
@@ -97,6 +128,35 @@ matcss_datepicker.vue
                         this.dateClass.redtext = false;
                         break;
                 }
+            },
+            findNewDate(findDirection) {
+                if (this.forbiddenDaysOfWeek && this.forbiddenDaysOfWeek.length > 6)
+                    return undefined
+
+                const startFrom = findDirection
+                    ? this.minDate_str
+                    : this.maxDate_str,
+                    mappedForbidden = new Set(this.forbiddenDaysOfWeek)
+
+                let current = utils.moment(startFrom),
+                    find = undefined
+
+                if (this.pickerValidation.forbiddenConflicts && this.pickerValidation.inRange) {
+                    current = utils.moment(this.pickerInstance.get('select', 'yyyy-mm-dd'))
+                }
+
+                do {
+                    if (mappedForbidden.has(current.day())) {
+                        current.add(findDirection ? 1 : -1, 'd')
+                    } else {
+                        find = current.format('YYYY-MM-DD')
+                    }
+                } while (
+                    find === undefined &&
+                    utils.moment(current).isBetween(this.minDate_str, this.maxDate_str, null, '[]')
+                )
+
+                return find
             }
         },
         mounted () {
@@ -115,64 +175,46 @@ matcss_datepicker.vue
                     closeOnSelect: true, // Close upon selecting a date,
 
                     onSet: function(thingSet) {
-                        let outOfRangeMinus = false,
-                            outOfRangePlus = false;
+                        const currentSelected = this.get('select', 'yyyy-mm-dd')
 
-                        if (_this.minDate !== undefined)
-                            outOfRangeMinus =
-                                _this.minDate - 1 > new Date(this.get('select', 'yyyy-mm-dd')) - 1;
-                        if (_this.maxDate !== undefined)
-                            outOfRangePlus =
-                                _this.maxDate - 1 < new Date(this.get('select', 'yyyy-mm-dd')) - 1;
+                        if (!currentSelected) {
+                            _this.$emit('update:val', undefined);
+                            return;
+                        }
 
-                        if (!outOfRangeMinus && !outOfRangePlus) {
-                            if (this.get('select', 'yyyy-mm-dd') != _this.val)
-                                _this.$emit('update:val', this.get('select', 'yyyy-mm-dd'));
-                        } else if (outOfRangeMinus) {
-                            Materialize.toast(`${_this.$t('this_date_is_unavailable_for_selection')}`, 6000, 'rounded red');
-                            if (_this.forbiddenDaysOfWeek != undefined) {
-                                let conflict = true;
-                                while (conflict) {
-                                    conflict = false;
-                                    for (let i = 0; i < _this.forbiddenDaysOfWeek.length; i++) {
-                                        if ((_this.minDate.getDay() === _this.forbiddenDaysOfWeek[i]) || ((_this.minDate.getDay() === 0) && (_this.forbiddenDaysOfWeek[i] === 7))) {
-                                            _this.minDate.setDate(_this.minDate.getDate() + 1);
-                                            conflict = true;
-                                        }
-                                    }
-                                }
+                        if (_this.pickerValidation.inRange === true && !_this.pickerValidation.forbiddenConflicts) {
+                            if (currentSelected != _this.val) {
+                                _this.$emit('update:val', currentSelected);
                             }
-                            this.set('select', _this.minDate, {format: 'yyyy-m-d'});
-                        } else if (outOfRangePlus) {
+                        } else if (!_this.pickerValidation.correctMinMax && !_this.pickerValidation.forbiddenConflicts) {
+                            _this.$emit('update:val', undefined);
+                            this.set('clear');
                             Materialize.toast(`${_this.$t('this_date_is_unavailable_for_selection')}`, 6000, 'rounded red');
-                            if (_this.forbiddenDaysOfWeek != undefined) {
-                                let conflict = true;
-                                while (conflict) {
-                                    conflict = false;
-                                    for (let i = _this.forbiddenDaysOfWeek.length; i >= 0; i--) {
-                                        if ((_this.maxDate.getDay() === _this.forbiddenDaysOfWeek[i]) || ((_this.maxDate.getDay() === 0) && (_this.forbiddenDaysOfWeek[i] === 7))) {
-                                            _this.maxDate.setDate(_this.maxDate.getDate() - 1);
-                                            conflict = true;
-                                        }
-                                    }
-                                }
+                            throw new Error(`Неразрешимый конфликт значений minDate и maxDate : ${utils.moment(_this.minDate_str).format('YYYY-MM-DD')}, ${utils.moment(_this.maxDate_str).format('YYYY-MM-DD')}`)
+                        } else {
+                            const find = _this.findNewDate(_this.pickerValidation.outOfRangeMin)
+
+                            if (find !== undefined) {
+                                Materialize.toast(`${_this.$t('this_date_is_unavailable_for_selection')}`, 6000, 'rounded red');
+                                this.set('select', find, {format: 'yyyy-m-d'});
+                            } else {
+                                _this.$emit('update:val', undefined);
+                                this.set('clear');
+                                throw new Error(`Невозможно выставить корректную дату с текущими значениями forbiddenDaysOfWeek, minDate и maxDate`)
                             }
-                            this.set('select', _this.maxDate, {format: 'yyyy-m-d'})
                         }
                     }
                 });
 
-                const picker = this.$options.datepicker.pickadate('picker');
+                this.pickerInstance = this.$options.datepicker.pickadate('picker');
 
                 //picker.set('disable', false);
                 //picker.set('enable', false);
 
                 //picker.set('disable', [2,3,4,5,6,7]);
-                if (this.forbiddenDaysOfWeek !== undefined)
-                    picker.set('disable', this.forbiddenDaysOfWeek);
 
                 if (this.val !== undefined && this.val !== null && this.val !== '') {
-                    picker.set('select', this.val, {format: 'yyyy-mm-dd'})
+                    this.pickerInstance.set('select', this.val, {format: 'yyyy-mm-dd'})
                 }
             })
         },
