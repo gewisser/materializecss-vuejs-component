@@ -8,7 +8,7 @@ matcss_collections.vue
             slot(name="clear")
                 span {{ $t('this_list_is_empty') }}
         ul.collection(v-if="items.length > 0", @contextmenu="cm($event)", style="border: none !important;")
-            li.collection-item(v-for="item in items", @dblclick="itemdblClick(item, $event)", @click="OnLiClick(item, $event)", :class="li_class(item)", :key="item.id", style="margin-bottom: 2px; border: 1px solid #e0e0e0;")
+            li.collection-item(v-for="(item, index) in items", @dblclick="itemdblClick(item, $event)", @click="OnLiClick(item, $event)", :class="li_class(item)", :key="item.id || index", style="margin-bottom: 2px; border: 1px solid #e0e0e0;")
                 slot(name="item", :item="item")
                     i.circle.material-icons(v-if="c_avatarMode && c_materialIcons") {{ item[ratio.photo] !== undefined? item[ratio.photo]: 'account_circle' }}
                     img.circle(v-if="c_avatarMode && !c_materialIcons", :src="item[ratio.photo] !== undefined? item[ratio.photo]: '/avatar_2x.png'", alt='')
